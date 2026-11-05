@@ -73,7 +73,9 @@ def call(
 	# The token goes to this backend, so its address must be https or loopback.
 	base_url = (entry.get("base_url") or "").rstrip("/")
 	if not base_url:
-		raise UpstreamUnavailable(f"Upstream {name!r} has no base_url (OAN Farmer App Settings or site_config)")
+		raise UpstreamUnavailable(
+			f"Upstream {name!r} has no base_url (OAN Farmer App Settings or site_config)"
+		)
 	if not iam_tokens.is_secure_url(base_url):
 		raise UpstreamUnavailable(f"Upstream {name!r} base_url must be https")
 	# Refuse to forward a token whose issuer or audience the backend's settings do not name.

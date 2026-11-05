@@ -105,7 +105,9 @@ def callback(code: str, state: str, key: str | None = None):
 			allow_redirects=False,
 		)
 	except requests.RequestException as exc:
-		frappe.logger("oan_farmer_app_service", allow_site=True).warning(f"IAM callback failed: {type(exc).__name__}")
+		frappe.logger("oan_farmer_app_service", allow_site=True).warning(
+			f"IAM callback failed: {type(exc).__name__}"
+		)
 		return _refused(503, "SERVICE_UNAVAILABLE", _("Identity service unavailable"))
 	audit(service.key, "/auth/iam/token", response.status_code)
 

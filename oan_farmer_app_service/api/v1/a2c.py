@@ -8,7 +8,9 @@ declare(
 		Route(("GET",), "/catalog/facets", "/{version}/catalog/facets", "Catalog facets"),
 		Route(("GET",), "/catalog/products", "/{version}/catalog/products", "List catalog products"),
 		Route(("GET",), "/catalog/banks/<bank_id>", "/{version}/catalog/banks/{bank_id}", "Bank details"),
-		Route(("GET",), "/catalog/saved-products", "/{version}/catalog/saved-products", "List saved products"),
+		Route(
+			("GET",), "/catalog/saved-products", "/{version}/catalog/saved-products", "List saved products"
+		),
 		Route(
 			("PUT", "DELETE"),
 			"/catalog/saved-products/<product>",
@@ -39,13 +41,20 @@ declare(
 			"/{version}/loan-applications/{application_id}/documents",
 			"List application documents",
 		),
-		Route(("GET",), "/consent-requests/farmers", "/{version}/consent/farmers", "Search farmer by Fayda ID"),
+		Route(
+			("GET",), "/consent-requests/farmers", "/{version}/consent/farmers", "Search farmer by Fayda ID"
+		),
 		Route(("GET",), "/consent-requests/reasons", "/{version}/consent/reasons", "Consent reasons"),
 		Route(
-			("GET",), "/consent-requests/allowed-fields", "/{version}/consent/allowed-fields", "Consent allowed fields"
+			("GET",),
+			"/consent-requests/allowed-fields",
+			"/{version}/consent/allowed-fields",
+			"Consent allowed fields",
 		),
 		Route(("POST",), "/consent-requests/otp", "/{version}/consent/otp", "Request consent OTP"),
-		Route(("POST",), "/consent-requests/otp/verify", "/{version}/consent/otp/verify", "Verify consent OTP"),
+		Route(
+			("POST",), "/consent-requests/otp/verify", "/{version}/consent/otp/verify", "Verify consent OTP"
+		),
 		Route(
 			("POST",),
 			"/consent-requests",

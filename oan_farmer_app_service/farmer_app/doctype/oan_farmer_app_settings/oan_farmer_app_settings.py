@@ -5,7 +5,6 @@ from frappe import _
 from frappe.model.document import Document
 from oan_auth_service.api import iam_tokens
 
-
 CONFIG_KEY = "oan_farmer_app_service"
 
 
@@ -59,5 +58,7 @@ class OANFarmerAppSettings(Document):
 			base_url = (row.base_url or "").strip().rstrip("/")
 			# A site_config.json override may stand in for the URL, so empty is allowed.
 			if base_url and not iam_tokens.is_secure_url(base_url):
-				frappe.throw(_("Row {0}: Base URL must be https, or http to a loopback host.").format(row.idx))
+				frappe.throw(
+					_("Row {0}: Base URL must be https, or http to a loopback host.").format(row.idx)
+				)
 			row.base_url = base_url
