@@ -1,0 +1,964 @@
+{
+  "info": {
+    "name": "OAN Farmer App - Grievance",
+    "description": "Grievance routes of the farmer app gateway: /grievances, /administrative-areas, /submitters.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Gate",
+      "item": [
+        {
+          "name": "Without a token is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [401]\", () => pm.expect(pm.response.code).to.be.oneOf([401]));",
+                  "pm.test(\"refused as an authentication error\", () => pm.expect(pm.response.json().exc_type).to.eql(\"AuthenticationError\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/submitters/options",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "submitters",
+                "options"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reference",
+      "item": [
+        {
+          "name": "Submitter options",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/submitters/options",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "submitters",
+                "options"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Administrative areas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/administrative-areas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "administrative-areas"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Administrative area ancestors",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/administrative-areas/{{area}}/ancestors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "administrative-areas",
+                "{{area}}",
+                "ancestors"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Grievances",
+      "item": [
+        {
+          "name": "Submit a grievance",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"idem_key\", \"run-\" + Date.now() + \"-\" + Math.random().toString(36).slice(2, 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 201]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  "const d = pm.response.json().data || {};",
+                  "const ticket = d.ticket_number || d.name || d.ticket;",
+                  "pm.test(\"returns a ticket\", () => pm.expect(ticket, JSON.stringify(d)).to.be.ok);",
+                  "if (ticket) pm.collectionVariables.set(\"ticket\", ticket);",
+                  "pm.collectionVariables.set(\"first_ticket\", ticket || \"\");"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idem_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/grievances",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "grievances"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Postman: irrigation canal blocked\",\n  \"consent_given\": 1,\n  \"submission_channel\": \"Mobile App\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Retry with the same Idempotency-Key replays the first answer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 201]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  "const d = pm.response.json().data || {};",
+                  "const ticket = d.ticket_number || d.name || d.ticket;",
+                  "pm.test(\"same ticket as the first call\", () => pm.expect(ticket).to.eql(pm.collectionVariables.get(\"first_ticket\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idem_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/grievances",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "grievances"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Postman: irrigation canal blocked\",\n  \"consent_given\": 1,\n  \"submission_channel\": \"Mobile App\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Same Idempotency-Key with a different body is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [422]\", () => pm.expect(pm.response.code).to.be.oneOf([422]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idem_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/grievances",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "grievances"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Postman: a DIFFERENT complaint\",\n  \"consent_given\": 1,\n  \"submission_channel\": \"Mobile App\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List my grievances",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/grievances",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "grievances"
+              ],
+              "query": [
+                {
+                  "key": "page_size",
+                  "value": "5"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Grievance timeline",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/grievances/{{ticket}}/timeline",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "grievances",
+                "{{ticket}}",
+                "timeline"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Submit feedback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 201, 400, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/grievances/{{ticket}}/feedback",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "grievances",
+                "{{ticket}}",
+                "feedback"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reopen is allowed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 400, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/grievances/{{ticket}}/action",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "grievances",
+                "{{ticket}}",
+                "action"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"Reopen\",\n  \"comment\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "The backend refuses an officer action",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [400, 403]\", () => pm.expect(pm.response.code).to.be.oneOf([400, 403]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/grievance/{{grievance_version}}/grievances/{{ticket}}/action",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "grievance",
+                "{{grievance_version}}",
+                "grievances",
+                "{{ticket}}",
+                "action"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"Resolve\",\n  \"reason\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "ticket",
+      "value": ""
+    },
+    {
+      "key": "application_id",
+      "value": ""
+    },
+    {
+      "key": "consent_id",
+      "value": ""
+    },
+    {
+      "key": "idem_key",
+      "value": ""
+    },
+    {
+      "key": "first_ticket",
+      "value": ""
+    },
+    {
+      "key": "first_application",
+      "value": ""
+    }
+  ]
+}

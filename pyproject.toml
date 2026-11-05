@@ -1,0 +1,27 @@
+[project]
+name = "oan_farmer_app_service"
+authors = [
+    { name = "OpenAgriNet", email = "admin@openagrinet.org"}
+]
+description = "Mobile backend-for-frontend for the OAN farmer app"
+requires-python = ">=3.14"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "pydantic>=2.0",
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[deploy.dependencies.apt]
+packages = []
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "tab"
