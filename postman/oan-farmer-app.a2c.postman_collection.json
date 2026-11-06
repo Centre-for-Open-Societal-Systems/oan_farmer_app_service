@@ -1,0 +1,1542 @@
+{
+  "info": {
+    "name": "OAN Farmer App - A2C",
+    "description": "A2C routes of the farmer app gateway: /catalog, /applications, /consent-requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Gate",
+      "item": [
+        {
+          "name": "Without a token is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [401]\", () => pm.expect(pm.response.code).to.be.oneOf([401]));",
+                  "pm.test(\"refused as an authentication error\", () => pm.expect(pm.response.json().exc_type).to.eql(\"AuthenticationError\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/catalog/facets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "catalog",
+                "facets"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "Facets",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/catalog/facets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "catalog",
+                "facets"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/catalog/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "catalog",
+                "products"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bank details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/catalog/banks/{{bank_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "catalog",
+                "banks",
+                "{{bank_id}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Saved products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/catalog/saved-products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "catalog",
+                "saved-products"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Save a product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 201, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/catalog/saved-products/{{product}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "catalog",
+                "saved-products",
+                "{{product}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Unsave a product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 204, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/catalog/saved-products/{{product}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "catalog",
+                "saved-products",
+                "{{product}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consent and farmer profile",
+      "item": [
+        {
+          "name": "Find farmer by Fayda ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 400, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/consent-requests/farmers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "consent-requests",
+                "farmers"
+              ],
+              "query": [
+                {
+                  "key": "fayda_id",
+                  "value": "{{fayda_id}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Consent reasons",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/consent-requests/reasons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "consent-requests",
+                "reasons"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Allowed fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/consent-requests/allowed-fields",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "consent-requests",
+                "allowed-fields"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Request consent OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 400, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/consent-requests/otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "consent-requests",
+                "otp"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fayda_id\": \"{{fayda_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify consent OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 400, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/consent-requests/otp/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "consent-requests",
+                "otp",
+                "verify"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"000000\",\n  \"transaction_id\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Submit consent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 201, 400, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/consent-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "consent-requests"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fayda_id\": \"{{fayda_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Create an application",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"idem_key\", \"run-\" + Date.now() + \"-\" + Math.random().toString(36).slice(2, 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 201]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"returns an application id\", () => pm.expect(d.application_id, JSON.stringify(d)).to.be.ok);",
+                  "if (d.application_id) { pm.collectionVariables.set(\"application_id\", d.application_id); pm.collectionVariables.set(\"first_application\", d.application_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idem_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "applications"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loan_product\": \"{{product}}\",\n  \"requested_amount\": 10000,\n  \"loan_reason\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Retry with the same Idempotency-Key replays the first answer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 201]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"same application as the first call\", () => pm.expect(d.application_id).to.eql(pm.collectionVariables.get(\"first_application\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idem_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "applications"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loan_product\": \"{{product}}\",\n  \"requested_amount\": 10000,\n  \"loan_reason\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List my applications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "applications"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get my application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/applications/{{application_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "applications",
+                "{{application_id}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update my application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 400, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/applications/{{application_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "applications",
+                "{{application_id}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loan_reason\": \"Postman update\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List documents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/applications/{{application_id}}/documents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "applications",
+                "{{application_id}}",
+                "documents"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Submit my application",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"idem_key\", \"run-\" + Date.now() + \"-\" + Math.random().toString(36).slice(2, 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 400, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idem_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/a2c/{{a2c_version}}/applications/{{application_id}}/submit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "a2c",
+                "{{a2c_version}}",
+                "applications",
+                "{{application_id}}",
+                "submit"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "ticket",
+      "value": ""
+    },
+    {
+      "key": "application_id",
+      "value": ""
+    },
+    {
+      "key": "consent_id",
+      "value": ""
+    },
+    {
+      "key": "idem_key",
+      "value": ""
+    },
+    {
+      "key": "first_ticket",
+      "value": ""
+    },
+    {
+      "key": "first_application",
+      "value": ""
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+node_modules/
+.git/
+oan_farmer_app_service/setup/demo_*.py

@@ -1,0 +1,64 @@
+name: Generated files
+
+# Every push and PR: apisix/ and the Postman collections must match what the
+# generators produce from the current code.
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: generated-files-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    name: APISIX and Postman in sync
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          check-latest: true
+
+      # The generators import the app's endpoint modules to discover routes, so they need
+      # frappe and oan_auth_service installed. No site or database is required.
+      - name: Setup bench
+        run: |
+          pip install frappe-bench
+          bench init --frappe-branch version-16 --skip-redis-config-generation --skip-assets --python "$(which python)" ~/frappe-bench
+
+      - name: Install apps
+        working-directory: /home/runner/frappe-bench
+        run: |
+          bench get-app oan_auth_service https://github.com/Centre-for-Open-Societal-Systems/oan_auth_service.git --branch develop || bench get-app oan_auth_service https://github.com/arnavam/oan_auth_service.git --branch develop
+          bench get-app oan_farmer_app_service $GITHUB_WORKSPACE
+          # Pinned so line wrapping in the generated YAML matches what was committed.
+          ./env/bin/pip install PyYAML==6.0.3
+
+      # Run from sites/, as bench does: frappe's logger writes to ../logs relative
+      # to the working directory, and that only exists from there.
+      - name: Regenerate
+        working-directory: /home/runner/frappe-bench/sites
+        run: |
+          APP=../apps/oan_farmer_app_service
+          PY=/home/runner/frappe-bench/env/bin/python
+          $PY $APP/apisix/generate_apisix_config.py
+          $PY $APP/postman/generate_postman_collections.py
+
+      - name: Fail on drift
+        working-directory: /home/runner/frappe-bench/apps/oan_farmer_app_service
+        run: |
+          if ! git diff --exit-code -- apisix/ postman/; then
+            echo "::error::apisix/ or postman/ is out of date. Run both generators and commit the result."
+            exit 1
+          fi

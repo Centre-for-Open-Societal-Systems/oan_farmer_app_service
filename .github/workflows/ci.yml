@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+concurrency:
+  group: ci-oan-farmer-app-service-${{ github.event_name }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Server
+    # oan_auth_service owns the job; this app has no tests yet, so it builds a site and
+    # installs both apps, which catches a broken hook, doctype or import.
+    uses: Centre-for-Open-Societal-Systems/oan_auth_service/.github/workflows/ci.yml@develop
+    with:
+      app: oan_farmer_app_service
+      frappe-branch: version-16

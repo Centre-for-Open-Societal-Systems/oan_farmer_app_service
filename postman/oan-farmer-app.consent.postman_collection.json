@@ -1,0 +1,389 @@
+{
+  "info": {
+    "name": "OAN Farmer App - Consent",
+    "description": "Consent Manager routes of the farmer app gateway: /consents, /consent-receipts.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Gate",
+      "item": [
+        {
+          "name": "Without a token is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [401]\", () => pm.expect(pm.response.code).to.be.oneOf([401]));",
+                  "pm.test(\"refused as an authentication error\", () => pm.expect(pm.response.json().exc_type).to.eql(\"AuthenticationError\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/consent/{{consent_version}}/consents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "consent",
+                "{{consent_version}}",
+                "consents"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "My consents",
+      "item": [
+        {
+          "name": "List my consents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  "const b = pm.response.json();",
+                  "if (b.status === \"success\") pm.test(\"has pagination\", () => pm.expect(b.pagination).to.be.an(\"object\"));",
+                  "const first = (b.data || [])[0]; if (first && first.id) pm.collectionVariables.set(\"consent_id\", first.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/consent/{{consent_version}}/consents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "consent",
+                "{{consent_version}}",
+                "consents"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "5"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get a consent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/consent/{{consent_version}}/consents/{{consent_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "consent",
+                "{{consent_version}}",
+                "consents",
+                "{{consent_id}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get a receipt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 404]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/consent/{{consent_version}}/consent-receipts/{{receipt_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "consent",
+                "{{consent_version}}",
+                "consent-receipts",
+                "{{receipt_id}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revoke a consent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is one of [200, 404, 409]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 404, 409]));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"answers in the mobile envelope\", () => {",
+                  "  pm.expect(body).to.be.an(\"object\");",
+                  "  pm.expect(body.status).to.be.oneOf([\"success\", \"error\"]);",
+                  "});",
+                  "if (body.status === \"error\") {",
+                  "  pm.test(\"error carries a code and a message\", () => {",
+                  "    pm.expect(body.code).to.be.a(\"string\");",
+                  "    pm.expect(body.message).to.be.a(\"string\");",
+                  "  });",
+                  "  pm.test(\"error does not leak a traceback or a backend URL\", () => {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.not.include(\"Traceback\");",
+                  "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
+                  "  });",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-App-Version",
+                "value": "{{app_version}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/consent/{{consent_version}}/consents/{{consent_id}}/revoke",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "consent",
+                "{{consent_version}}",
+                "consents",
+                "{{consent_id}}",
+                "revoke"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "ticket",
+      "value": ""
+    },
+    {
+      "key": "application_id",
+      "value": ""
+    },
+    {
+      "key": "consent_id",
+      "value": ""
+    },
+    {
+      "key": "idem_key",
+      "value": ""
+    },
+    {
+      "key": "first_ticket",
+      "value": ""
+    },
+    {
+      "key": "first_application",
+      "value": ""
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: oan-farmer-app-gateway
+description: APISIX Ingress Controller routes for the OAN farmer app
+type: application
+version: 0.1.0
