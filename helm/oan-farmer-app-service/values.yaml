@@ -140,3 +140,30 @@ frappe:
       installApps:
       - oan_auth_service
       - oan_farmer_app_service
+
+# Public base domain of the environment, used to build the hosts in iamServices. Set per environment.
+global:
+  baseDomain: ""
+
+# `OAN IAM Service` rows (the login options) the site-settings Job writes into the DB on every install and
+# upgrade, matched by `key` (templates/site-settings.yaml, oan_farmer_app_service.setup.site_settings.sync).
+# Entries use the DocType's field names; `default_roles` is a list of role names. Values are templates, so
+# hosts follow global.baseDomain. Empty: no Job. An environment that changes one entry repeats the whole
+# list, as Helm replaces lists. Rows removed from the list stay in the DB.
+# Farmers sign in with their national ID only: the same eSignet row as A2C (oan_a2c helm/oan-a2c-service).
+siteSettingsJob:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 86400
+  attempts: 20
+iamServices:
+- key: beneficiary
+  label: National ID (eSignet)
+  enabled: 1
+  sort_order: 30
+  base_url: "https://bene-iam.{{ .Values.global.baseDomain }}"
+  provider_id: 11
+  issuer: "https://esignet.{{ .Values.global.baseDomain }}"
+  # eSignet tokens carry no client roles, and the DocType refuses a row with neither an application
+  # nor a default role. Created by oan_farmer_app_service.setup.install.
+  default_roles:
+  - OAN Farmer

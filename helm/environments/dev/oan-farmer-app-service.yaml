@@ -5,6 +5,9 @@
 # Set at install, not here:
 # - frappe.image.tag: the Jenkins tag `<__version__>-develop.<build>`
 
+global:
+  baseDomain: development.oanstaging.com
+
 frappe:
   image:
     # Jenkinsfile ECR_REPO. The node pulls from ECR with its IAM role (kubelet ecr-credential-provider).
