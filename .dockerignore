@@ -1,0 +1,11 @@
+# Keep .git: bench installs the app by cloning the build context.
+.github
+.vscode
+.ruff_cache
+node_modules
+__pycache__
+*.pyc
+.env*
+Dockerfile
+.dockerignore
+Jenkinsfile

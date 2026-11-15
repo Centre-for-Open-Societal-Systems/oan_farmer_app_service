@@ -4,8 +4,6 @@
 #
 # Set at install, not here:
 # - redis.host: the Redis Service of the APISIX release (ci/deploy-gateway.sh looks it up)
-#
-# Not installed yet: the farmer app backend does not run on oan_dev, so every route would answer 502.
 
 ingressClassName: apisix
 
@@ -17,7 +15,7 @@ hosts:
 # Frappe site name, sent as Host because Frappe selects the site from it.
 siteName: farmer-app-service.development.oanstaging.com
 
-# The Frappe gunicorn Service in this namespace.
+# The Frappe gunicorn Service of release `farmer-app` (helm/oan-farmer-app-service) in this namespace.
 web:
   serviceName: farmer-app-frappe-gunicorn
   port: 8000

@@ -1,0 +1,43 @@
+# Values for the oan-farmer-app-service chart (helm/oan-farmer-app-service).
+# Target: the oan_dev k3s node, installed by the Jenkins stage "develop → oan_dev (helm)"
+# (ci/deploy-helm-dev.sh). Release `farmer-app`, namespace `farmer-app`.
+#
+# Set at install, not here:
+# - frappe.image.tag: the Jenkins tag `<__version__>-develop.<build>`
+
+frappe:
+  image:
+    # Jenkinsfile ECR_REPO. The node pulls from ECR with its IAM role (kubelet ecr-credential-provider).
+    repository: 379220350808.dkr.ecr.ap-south-1.amazonaws.com/eoan/oan-farmer-app-service/farmer-app-service
+
+  # The shared PostgreSQL of the oan-frappe-common release (namespace frappe-common).
+  dbHost: oan-frappe-common-db-postgresql-subchart.frappe-common.svc.cluster.local
+  dbRootUser: postgres
+
+  persistence:
+    worker:
+      # ReadWriteMany from the NFS server.
+      storageClass: nfs-csi
+
+  siteConfig:
+    values:
+      host_name: https://farmer-app-service.development.oanstaging.com
+      # The backends the app forwards to (OAN Farmer App Settings reads `base_url` from here over its
+      # own rows). https only. Inside oan_dev these names resolve to APISIX (oan-helm addons/oan-dev-coredns),
+      # which serves A2C and grievance itself (paths /v1/...) and passes consent-manager to the OpenG2P
+      # istio, where /consent/ is the consent API.
+      oan_farmer_app_service:
+        upstreams:
+          a2c:
+            base_url: https://a2c-service.development.oanstaging.com
+          grievance:
+            base_url: https://grievance-service.development.oanstaging.com
+          consent:
+            base_url: https://consent-manager.development.oanstaging.com
+
+  jobs:
+    configure:
+      # nfs-csi creates each volume directory with mode 0777, so the Frappe user can write it.
+      fixVolume: false
+    createSite:
+      siteName: farmer-app-service.development.oanstaging.com

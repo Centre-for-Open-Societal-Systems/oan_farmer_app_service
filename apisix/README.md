@@ -34,10 +34,6 @@ Environment read when the file is generated: `APISIX_REDIS_HOST`, `APISIX_REDIS_
 the same way oan_a2c installs its routes. The public host is `farmer-app-service.development.oanstaging.com`;
 APISIX serves it with the dev wildcard certificate, so the chart has no ApisixTls.
 
-```bash
-KUBECONFIG=... bash ci/deploy-gateway.sh
-```
-
-Not installed yet: the farmer app backend (`web.serviceName`) does not run on oan_dev. The attachment and
-export routes also need a Service named `grievance.host` in the namespace that reaches the grievance backend
-over TLS.
+Jenkins (stage "develop → gateway (apisix)") runs it after the app release `farmer-app`
+(`helm/oan-farmer-app-service`, `ci/deploy-helm-dev.sh`). The attachment and export routes also need a Service
+named `grievance.host` in the namespace that reaches the grievance backend over TLS; not wired yet.
