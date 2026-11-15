@@ -1,0 +1,32 @@
+# Values for the oan-farmer-app-gateway chart (apisix/k8s) on the oan_dev k3s node, namespace `farmer-app`.
+# Installed by ci/deploy-gateway.sh. APISIX and its Ingress Controller run in namespace api6-gateway on the
+# same node; this chart only holds ApisixRoute/ApisixUpstream objects. See apisix/README.md.
+#
+# Set at install, not here:
+# - redis.host: the Redis Service of the APISIX release (ci/deploy-gateway.sh looks it up)
+
+ingressClassName: apisix
+
+# The public host. Routes match it, so apps that share paths (/v1/auth/*) stay apart on one gateway.
+# *.development.oanstaging.com is served by APISIX with the wildcard certificate (oan-helm, dev edge).
+hosts:
+  - farmer-app-service.development.oanstaging.com
+
+# Frappe site name, sent as Host because Frappe selects the site from it.
+siteName: farmer-app-service.development.oanstaging.com
+
+# The Frappe gunicorn Service of release `farmer-app` (helm/oan-farmer-app-service) in this namespace.
+web:
+  serviceName: farmer-app-frappe-gunicorn
+  port: 8000
+
+# Attachment and export routes go to the grievance backend. The chart uses `host` both as a Service
+# name in this namespace and as the Host header (scheme https), so it needs a Service of that name
+# that reaches the grievance backend over TLS. Not wired on oan_dev yet.
+grievance:
+  host: grievance-backend
+  port: 443
+
+# Localhost only until the farmer app UI hosts are confirmed.
+corsOriginRegexes:
+  - https?://localhost(:[0-9]+)?

@@ -26,3 +26,14 @@ Environment read when the file is generated: `APISIX_REDIS_HOST`, `APISIX_REDIS_
 `OAN_GRIEVANCE_UPSTREAM_HOST`, `FRAPPE_SITE_NAME`.
 
 `GRIEVANCE_API_PREFIX` (default `/api`) is what the attachment and export rewrites put in front of the version on the grievance host. Set it empty if that host is reached through the backend's own gateway, then re-run the generator.
+
+## Install on oan_dev (Helm)
+
+`k8s/` is a Helm chart (`oan-farmer-app-gateway`). `ci/deploy-gateway.sh` installs it as release
+`farmer-app-gateway` in namespace `farmer-app` with `helm/environments/dev/oan-farmer-app-gateway.yaml`,
+the same way oan_a2c installs its routes. The public host is `farmer-app-service.development.oanstaging.com`;
+APISIX serves it with the dev wildcard certificate, so the chart has no ApisixTls.
+
+Jenkins (stage "develop → gateway (apisix)") runs it after the app release `farmer-app`
+(`helm/oan-farmer-app-service`, `ci/deploy-helm-dev.sh`). The attachment and export routes also need a Service
+named `grievance.host` in the namespace that reaches the grievance backend over TLS; not wired yet.

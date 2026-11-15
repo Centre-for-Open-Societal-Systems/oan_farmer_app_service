@@ -4,13 +4,13 @@
 apiVersion: apisix.apache.org/v2
 kind: ApisixRoute
 metadata:
-  name: oan-farmer-app-service-v1
+  name: service-v1
   labels:
     app: oan-farmer-app
 spec:
   ingressClassName: {{ .Values.ingressClassName | quote }}
   http:
-  - name: oan-farmer-app-auth-admin-bearer-delete
+  - name: auth-admin-bearer-delete
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -63,11 +63,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-admin-bearer-get
+  - name: auth-admin-bearer-get
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -122,11 +121,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-admin-bearer-patch
+  - name: auth-admin-bearer-patch
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -177,11 +175,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-admin-bearer-post
+  - name: auth-admin-bearer-post
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -235,11 +232,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-admin-bearer-put
+  - name: auth-admin-bearer-put
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -290,11 +286,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-credentials-public-post
+  - name: auth-credentials-public-post
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -352,11 +347,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: false
-        group: oan-farmer-app:auth-credentials:public
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-public-read-public-get
+  - name: auth-public-read-public-get
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -410,11 +404,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-public-read:public
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-session-bearer-delete
+  - name: auth-session-bearer-delete
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -466,11 +459,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-session:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-session-bearer-get
+  - name: auth-session-bearer-get
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -523,11 +515,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-session:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-session-bearer-patch
+  - name: auth-session-bearer-patch
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -579,11 +570,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-session:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-auth-session-public-post
+  - name: auth-session-public-post
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -635,11 +625,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-session:public
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-farmer-public-public-get
+  - name: farmer-public-public-get
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -692,11 +681,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: false
-        group: oan-farmer-app:farmer-public:public
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-farmer-public-public-post
+  - name: farmer-public-public-post
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -747,11 +735,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: false
-        group: oan-farmer-app:farmer-public:public
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-farmer-read-bearer-get
+  - name: farmer-read-bearer-get
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -816,11 +803,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-read:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-farmer-write-bearer-delete
+  - name: farmer-write-bearer-delete
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -871,11 +857,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-write:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-farmer-write-bearer-patch
+  - name: farmer-write-bearer-patch
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -926,11 +911,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-write:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-farmer-write-bearer-post
+  - name: farmer-write-bearer-post
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -989,11 +973,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-write:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-farmer-write-bearer-put
+  - name: farmer-write-bearer-put
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -1044,11 +1027,10 @@ spec:
         redis_host: {{ required "redis.host is required" .Values.redis.host | quote }}
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-write:bearer
     backends:
     - serviceName: {{ required "web.serviceName is required" .Values.web.serviceName | quote }}
       servicePort: {{ .Values.web.port }}
-  - name: oan-farmer-app-cors-preflight
+  - name: cors-preflight
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -1103,13 +1085,13 @@ spec:
 apiVersion: apisix.apache.org/v2
 kind: ApisixRoute
 metadata:
-  name: oan-farmer-app-files-v1
+  name: files-v1
   labels:
     app: oan-farmer-app
 spec:
   ingressClassName: {{ .Values.ingressClassName | quote }}
   http:
-  - name: oan-farmer-app-files-attachments-get-post
+  - name: files-attachments-get-post
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -1153,7 +1135,7 @@ spec:
     backends:
     - serviceName: {{ required "grievance.host is required" .Values.grievance.host | quote }}
       servicePort: {{ .Values.grievance.port }}
-  - name: oan-farmer-app-files-view-get
+  - name: files-view-get
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -1196,7 +1178,7 @@ spec:
     backends:
     - serviceName: {{ required "grievance.host is required" .Values.grievance.host | quote }}
       servicePort: {{ .Values.grievance.port }}
-  - name: oan-farmer-app-files-download-get
+  - name: files-download-get
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -1239,7 +1221,7 @@ spec:
     backends:
     - serviceName: {{ required "grievance.host is required" .Values.grievance.host | quote }}
       servicePort: {{ .Values.grievance.port }}
-  - name: oan-farmer-app-files-:id-delete
+  - name: files-:id-delete
     match:
 {{- if .Values.hosts }}
       hosts:
@@ -1282,7 +1264,7 @@ spec:
     backends:
     - serviceName: {{ required "grievance.host is required" .Values.grievance.host | quote }}
       servicePort: {{ .Values.grievance.port }}
-  - name: oan-farmer-app-files-export-get
+  - name: files-export-get
     match:
 {{- if .Values.hosts }}
       hosts:

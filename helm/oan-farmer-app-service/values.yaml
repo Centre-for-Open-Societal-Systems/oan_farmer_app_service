@@ -1,0 +1,169 @@
+# Defaults for the OAN farmer app (mobile BFF). Everything sits under `frappe`, the values of the
+# frappe chart this one depends on. Per-environment values live in
+# helm/environments/<env>/oan-farmer-app-service.yaml.
+#
+# Set at install, not here:
+# - frappe.image.tag: the Jenkins tag `<__version__>-develop.<build>`
+# - frappe.dbHost: the PostgreSQL server (set in the environment file)
+# Image repositories and dbRootUser are per environment.
+# Secrets the chart generates once and keeps across upgrades (templates/secrets.yaml), see `secrets` below:
+# - oan-farmer-app-service-admin (key `password`): Frappe Administrator password
+# - oan-farmer-app-service-jwt (key `jwt_v1.pem`): RSA private key that signs access tokens
+# Secrets created outside Git, in the release namespace:
+# - oan-frappe-common-db (key `password`): the `postgres` password, copied from the frappe-common namespace
+# - oan-farmer-app-service-sentry (key `dsn`): Sentry DSN. Optional.
+
+# Set create=false to bring your own Secret with the same name and keys.
+secrets:
+  admin:
+    create: true
+    name: oan-farmer-app-service-admin
+  jwt:
+    create: true
+    name: oan-farmer-app-service-jwt
+
+frappe:
+  image:
+    # Set per environment. package_chart.py needs both keys to exist.
+    repository: ""
+    tag: ""
+
+  # PostgreSQL runs outside the cluster. The create-site job reads the password of dbRootUser
+  # from Secret oan-frappe-common-db, a copy of the one the frappe-common release creates.
+  dbHost: ""
+  dbPort: 5432
+  dbExistingSecret: oan-frappe-common-db
+  dbExistingSecretPasswordKey: password
+  postgresql-sts:
+    enabled: false
+
+  siteConfig:
+    enabled: true
+    values:
+      jwt_current_kid: v1
+      jwt_private_keys:
+        v1: keys/jwt_v1.pem
+    files:
+    # oan_auth_service refuses every login without it.
+    - path: keys/jwt_v1.pem
+      secretName: oan-farmer-app-service-jwt
+      secretKey: jwt_v1.pem
+
+  # FRAPPE_STREAM_LOGGING sends frappe.logger output to stdout for the cluster log collector.
+  # FRAPPE_SENTRY_DSN is optional: without the Secret, Sentry stays off.
+  nginx:
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPU: 75
+      targetMemory: 75
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+  worker:
+    gunicorn:
+      envVars: &frappeEnv
+      - name: FRAPPE_STREAM_LOGGING
+        value: "1"
+      - name: FRAPPE_SENTRY_DSN
+        valueFrom:
+          secretKeyRef:
+            name: oan-farmer-app-service-sentry
+            key: dsn
+            optional: true
+      autoscaling:
+        enabled: true
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPU: 75
+        targetMemory: 75
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    default:
+      envVars: *frappeEnv
+      autoscaling:
+        enabled: true
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPU: 75
+        targetMemory: 75
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    short:
+      envVars: *frappeEnv
+      autoscaling:
+        enabled: true
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPU: 75
+        targetMemory: 75
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    long:
+      envVars: *frappeEnv
+      autoscaling:
+        enabled: true
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPU: 75
+        targetMemory: 75
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    scheduler:
+      envVars: *frappeEnv
+  socketio:
+    envVars: *frappeEnv
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPU: 75
+      targetMemory: 75
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+  jobs:
+    createSite:
+      adminExistingSecret: oan-farmer-app-service-admin
+      installApps:
+      - oan_auth_service
+      - oan_farmer_app_service
+
+# Public base domain of the environment, used to build the hosts in iamServices. Set per environment.
+global:
+  baseDomain: ""
+
+# `OAN IAM Service` rows (the login options) the site-settings Job writes into the DB on every install and
+# upgrade, matched by `key` (templates/site-settings.yaml, oan_farmer_app_service.setup.site_settings.sync).
+# Entries use the DocType's field names; `default_roles` is a list of role names. Values are templates, so
+# hosts follow global.baseDomain. Empty: no Job. An environment that changes one entry repeats the whole
+# list, as Helm replaces lists. Rows removed from the list stay in the DB.
+# Farmers sign in with their national ID only: the same eSignet row as A2C (oan_a2c helm/oan-a2c-service).
+siteSettingsJob:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 86400
+  attempts: 20
+iamServices:
+- key: beneficiary
+  label: National ID (eSignet)
+  enabled: 1
+  sort_order: 30
+  base_url: "https://bene-iam.{{ .Values.global.baseDomain }}"
+  provider_id: 11
+  issuer: "https://esignet.{{ .Values.global.baseDomain }}"
+  # eSignet tokens carry no client roles, and the DocType refuses a row with neither an application
+  # nor a default role. Created by oan_farmer_app_service.setup.install.
+  default_roles:
+  - OAN Farmer

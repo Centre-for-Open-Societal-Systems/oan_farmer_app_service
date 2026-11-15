@@ -7,4 +7,7 @@ app_license = "mit"
 
 required_apps = ["oan_auth_service"]
 
+after_install = "oan_farmer_app_service.setup.install.after_install"
+after_migrate = "oan_farmer_app_service.setup.install.after_migrate"
+
 before_request = ["oan_farmer_app_service.api.router.ensure_routes_registered"]
