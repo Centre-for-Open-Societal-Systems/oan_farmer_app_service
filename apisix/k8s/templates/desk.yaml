@@ -1,0 +1,75 @@
+{{- /*
+The Frappe desk on its own host: everything Frappe serves (/app, its login, /api/method, /api/resource,
+assets, files, realtime) sent to the frappe nginx Service, unlike the API host, which only routes the
+declared /v1 operations. Hand-written: the generator writes only apisix-route.yaml, apisix-upstream.yaml
+and apisix-consumer.yaml.
+
+The desk host is not the site name, so the app chart must set frappe.nginx.environment.frappeSiteNameHeader
+to the site. HTTPS only: plain HTTP gets a 301 (without it, an exact-host route would answer HTTP itself,
+before the edge redirect). `desk.allowlist` empty means public.
+*/ -}}
+{{- with .Values.desk }}
+{{- if .enabled }}
+{{- $host := tpl (required "desk.host is required when desk.enabled" .host) $ }}
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: desk
+spec:
+  ingressClassName: {{ $.Values.ingressClassName | quote }}
+  http:
+  - name: desk
+    websocket: true
+    match:
+      hosts:
+      - {{ $host | quote }}
+      paths:
+      - /*
+      exprs:
+      - subject:
+          scope: Variable
+          name: scheme
+        op: Equal
+        value: https
+    backends:
+    - serviceName: {{ required "desk.serviceName is required when desk.enabled" .serviceName | quote }}
+      servicePort: {{ .port | default 8080 }}
+    plugins:
+    # APISIX's own port (9443) would otherwise reach Frappe as the client's.
+    - name: proxy-rewrite
+      enable: true
+      config:
+        headers:
+          set:
+            X-Forwarded-Proto: https
+            X-Forwarded-Port: "443"
+{{- with .allowlist }}
+    - name: ip-restriction
+      enable: true
+      config:
+        whitelist:
+{{- toYaml . | nindent 8 }}
+{{- end }}
+  - name: desk-http
+    match:
+      hosts:
+      - {{ $host | quote }}
+      paths:
+      - /*
+      exprs:
+      - subject:
+          scope: Variable
+          name: scheme
+        op: Equal
+        value: http
+    backends:
+    - serviceName: {{ .serviceName | quote }}
+      servicePort: {{ .port | default 8080 }}
+    plugins:
+    - name: redirect
+      enable: true
+      config:
+        uri: "https://$host$request_uri"
+        ret_code: 301
+{{- end }}
+{{- end }}
