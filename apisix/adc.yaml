@@ -62,7 +62,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
   - name: oan-farmer-app-auth-admin-bearer-get
     description: Admin user and role management. Low volume. Keyed per IP while GATEWAY_JWT is off; per
       token once the gateway verifies tokens.
@@ -93,7 +92,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
   - name: oan-farmer-app-auth-admin-bearer-patch
     description: Admin user and role management. Low volume. Keyed per IP while GATEWAY_JWT is off; per
       token once the gateway verifies tokens.
@@ -120,7 +118,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
   - name: oan-farmer-app-auth-admin-bearer-post
     description: Admin user and role management. Low volume. Keyed per IP while GATEWAY_JWT is off; per
       token once the gateway verifies tokens.
@@ -150,7 +147,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
   - name: oan-farmer-app-auth-admin-bearer-put
     description: Admin user and role management. Low volume. Keyed per IP while GATEWAY_JWT is off; per
       token once the gateway verifies tokens.
@@ -177,7 +173,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-admin:bearer
   - name: oan-farmer-app-auth-credentials-public-post
     description: Credential-sensitive endpoints (login, register, reset). Per-IP limit against stuffing,
       loose enough for users sharing one address behind NAT; per-account limits are enforced by the app.
@@ -212,7 +207,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: false
-        group: oan-farmer-app:auth-credentials:public
   - name: oan-farmer-app-auth-public-read-public-get
     description: Public discovery and health check endpoints.
     labels:
@@ -241,7 +235,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-public-read:public
   - name: oan-farmer-app-auth-session-bearer-delete
     description: Logged-in user calls (e.g. /me), token refresh and logout. Cheap and frequent; a throttled
       logout would leave the refresh token alive.
@@ -269,7 +262,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-session:bearer
   - name: oan-farmer-app-auth-session-bearer-get
     description: Logged-in user calls (e.g. /me), token refresh and logout. Cheap and frequent; a throttled
       logout would leave the refresh token alive.
@@ -298,7 +290,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-session:bearer
   - name: oan-farmer-app-auth-session-bearer-patch
     description: Logged-in user calls (e.g. /me), token refresh and logout. Cheap and frequent; a throttled
       logout would leave the refresh token alive.
@@ -326,7 +317,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-session:bearer
   - name: oan-farmer-app-auth-session-public-post
     description: Logged-in user calls (e.g. /me), token refresh and logout. Cheap and frequent; a throttled
       logout would leave the refresh token alive.
@@ -354,7 +344,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:auth-session:public
   - name: oan-farmer-app-farmer-public-public-get
     description: 'Routes that take no token: the IAM token exchange and the guest reference data. Per-IP,
       generous because rural carriers put many farmers behind one address.'
@@ -383,7 +372,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: false
-        group: oan-farmer-app:farmer-public:public
   - name: oan-farmer-app-farmer-public-public-post
     description: 'Routes that take no token: the IAM token exchange and the guest reference data. Per-IP,
       generous because rural carriers put many farmers behind one address.'
@@ -410,7 +398,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: false
-        group: oan-farmer-app:farmer-public:public
   - name: oan-farmer-app-farmer-read-bearer-get
     description: Farmer reads.
     labels:
@@ -450,7 +437,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-read:bearer
   - name: oan-farmer-app-farmer-write-bearer-delete
     description: 'Farmer writes: applications, grievances, consent.'
     labels:
@@ -476,7 +462,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-write:bearer
   - name: oan-farmer-app-farmer-write-bearer-patch
     description: 'Farmer writes: applications, grievances, consent.'
     labels:
@@ -502,7 +487,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-write:bearer
   - name: oan-farmer-app-farmer-write-bearer-post
     description: 'Farmer writes: applications, grievances, consent.'
     labels:
@@ -536,7 +520,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-write:bearer
   - name: oan-farmer-app-farmer-write-bearer-put
     description: 'Farmer writes: applications, grievances, consent.'
     labels:
@@ -562,7 +545,6 @@ services:
         redis_host: redis
         redis_port: 6379
         allow_degradation: true
-        group: oan-farmer-app:farmer-write:bearer
   - name: oan-farmer-app-cors-preflight
     labels:
       app: oan-farmer-app
