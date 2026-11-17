@@ -1,8 +1,10 @@
 // Farmer app (mobile BFF) - build, push and deploy to the oan_dev k3s node.
 //
-//  develop -> image eoan/oan-farmer-app-service/farmer-app-service:<__version__>-develop.<build>
-//             + ci/deploy-helm-dev.sh (release `farmer-app`, namespace `farmer-app`)
+//  develop -> image eoan/oan-farmer-app-service/farmer-app-service:<__version__>-develop.<build> (= chart version)
+//             + ci/package_chart.py package (chart helm/oan-farmer-app-service with that version and image)
+//             + ci/deploy-helm-dev.sh (release `farmer-app`, namespace `farmer-app`, from that archive)
 //             + ci/deploy-gateway.sh (APISIX routes, chart apisix/k8s, only when they changed)
+//             + ci/package_chart.py publish (the same archives to repository/develop/ of oan-helm)
 //  other branches: checks only (Lint is the GitHub workflow's job; nothing to build here).
 pipeline {
     agent any
@@ -89,7 +91,45 @@ pipeline {
             }
         }
 
-        // develop -> Helm release `farmer-app` on the oan_dev k3s node (chart helm/oan-farmer-app-service).
+        // Flow (develop): Checkout (version) -> Build image -> Push image -> Package chart -> deploy -> Publish chart.
+        // helm/oan-farmer-app-service is zipped with this build's image before the deploy; the deploy installs
+        // that archive, and the same archive is published to oan-helm afterwards.
+        stage('Package chart') {
+            when { branch 'develop' }
+            steps {
+                script {
+                    env.IMAGE_TAG = env.IMMUTABLE_TAG
+                    env.SOURCE_COMMIT = sh(returnStdout: true, script: 'git rev-parse --verify HEAD').trim()
+                    env.COMMIT_SUBJECT = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
+                    env.IMAGE_REPOSITORY = env.IMAGE_URI
+                }
+                sh 'python3 ci/package_chart.py package'
+                // The deploy stages run on the VPN deploy agent, which gets the archive from here.
+                stash name: 'built-chart', includes: 'built-chart/**'
+            }
+        }
+
+        // The routes chart (apisix/k8s) is packaged and published like the app chart, but only for a build that
+        // changed the routes or the gateway values: those are the builds that install it.
+        stage('Package gateway chart') {
+            when {
+                beforeAgent true
+                allOf {
+                    branch 'develop'
+                    anyOf {
+                        changeset 'apisix/**'
+                        changeset 'oan_farmer_app_service/api/**'
+                        changeset 'helm/environments/dev/oan-farmer-app-gateway.yaml'
+                    }
+                }
+            }
+            steps {
+                sh 'python3 ci/package_chart.py gateway-package'
+                stash name: 'built-gateway-chart', includes: 'built-gateway-chart/**'
+            }
+        }
+
+        // develop -> Helm release `farmer-app` on the oan_dev k3s node (the archive 'Package chart' built).
         // First run installs, later runs upgrade; the chart generates its admin and JWT Secrets and writes
         // the upstream URLs into the site config, so a new site needs nothing set by hand.
         stage('develop → oan_dev (helm)') {
@@ -98,6 +138,7 @@ pipeline {
             options { timeout(time: 45, unit: 'MINUTES') }
             steps {
                 checkout scm
+                unstash 'built-chart'
                 withCredentials([file(credentialsId: 'oan-dev-kubeconfig', variable: 'KUBECONFIG')]) {
                     sh 'bash ci/deploy-helm-dev.sh'
                 }
@@ -122,6 +163,7 @@ pipeline {
             options { timeout(time: 15, unit: 'MINUTES') }
             steps {
                 checkout scm
+                unstash 'built-gateway-chart'
                 withCredentials([file(credentialsId: 'oan-dev-kubeconfig', variable: 'KUBECONFIG')]) {
                     sh 'bash ci/deploy-gateway.sh'
                 }
@@ -146,6 +188,42 @@ pipeline {
                     echo "farmer-app did not answer at $url"
                     exit 1
                 '''
+            }
+        }
+
+        // Adds the archive built by 'Package chart' to repository/develop/ of oan-helm, only after
+        // the oan_dev deploy and Verify succeeded.
+        stage('Publish chart') {
+            when { branch 'develop' }
+            steps {
+                // UNSTABLE, not failed: the image is already deployed.
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    withCredentials([usernamePassword(credentialsId: 'oan-helm-fork-token', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
+                        sh 'python3 ci/package_chart.py publish'
+                    }
+                }
+            }
+        }
+
+        stage('Publish gateway chart') {
+            when {
+                beforeAgent true
+                allOf {
+                    branch 'develop'
+                    anyOf {
+                        changeset 'apisix/**'
+                        changeset 'oan_farmer_app_service/api/**'
+                        changeset 'helm/environments/dev/oan-farmer-app-gateway.yaml'
+                    }
+                }
+            }
+            steps {
+                // UNSTABLE, not failed: the routes are already installed.
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    withCredentials([usernamePassword(credentialsId: 'oan-helm-fork-token', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
+                        sh 'python3 ci/package_chart.py gateway-publish'
+                    }
+                }
             }
         }
     }
