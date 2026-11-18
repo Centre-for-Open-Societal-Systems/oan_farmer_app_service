@@ -3,4 +3,3 @@ node_modules/
 oan_farmer_app_service/setup/demo_*.py
 # CI scripts print to the build log; the rule is for application code.
 ci/
-
