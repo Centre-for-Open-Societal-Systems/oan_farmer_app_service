@@ -156,6 +156,7 @@ pipeline {
             options { timeout(time: 15, unit: 'MINUTES') }
             steps {
                 checkout scm
+                sh 'rm -rf built-gateway-chart'
                 unstash 'built-gateway-chart'
                 withCredentials([file(credentialsId: 'oan-dev-kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''

@@ -17,7 +17,12 @@ NS="${FARMER_APP_NAMESPACE:-farmer-app}"
 RELEASE="${GATEWAY_RELEASE:-farmer-app-gateway}"
 APISIX_NS="${GATEWAY_APISIX_NAMESPACE:-api6-gateway}"
 # The archive "Package gateway chart" built for this commit (unstashed into built-gateway-chart/), else the chart folder.
-PACKAGED="$(ls built-gateway-chart/oan-farmer-app-gateway-*.tgz 2>/dev/null | head -n 1 || true)"
+PACKAGED=""
+if [ -n "${IMMUTABLE_TAG:-}" ] && [ -f "built-gateway-chart/oan-farmer-app-gateway-${IMMUTABLE_TAG}.tgz" ]; then
+  PACKAGED="built-gateway-chart/oan-farmer-app-gateway-${IMMUTABLE_TAG}.tgz"
+elif [ -d "built-gateway-chart" ]; then
+  PACKAGED="$(ls -v built-gateway-chart/oan-farmer-app-gateway-*.tgz 2>/dev/null | tail -n 1 || true)"
+fi
 CHART="${GATEWAY_CHART:-${PACKAGED:-apisix/k8s}}"
 VALUES="${GATEWAY_VALUES:-helm/environments/dev/oan-farmer-app-gateway.yaml}"
 
