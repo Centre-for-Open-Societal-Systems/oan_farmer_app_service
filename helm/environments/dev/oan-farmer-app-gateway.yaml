@@ -30,3 +30,12 @@ grievance:
 # Localhost only until the farmer app UI hosts are confirmed.
 corsOriginRegexes:
   - https?://localhost(:[0-9]+)?
+
+# The Frappe desk (/app) on its own host, sent to the frappe nginx Service (templates/desk.yaml). Public on
+# this dev instance; `allowlist` (CIDRs) restricts it, `enabled: false` removes it.
+desk:
+  enabled: true
+  host: farmer-app-service-desk.development.oanstaging.com
+  serviceName: farmer-app-frappe
+  port: 8080
+  allowlist: []

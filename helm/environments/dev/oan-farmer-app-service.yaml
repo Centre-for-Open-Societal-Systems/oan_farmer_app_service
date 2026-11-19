@@ -17,6 +17,12 @@ frappe:
   dbHost: oan-frappe-common-db-postgresql-subchart.frappe-common.svc.cluster.local
   dbRootUser: postgres
 
+  nginx:
+    environment:
+      # The desk host (oan-farmer-app-gateway.yaml desk.host) is not the site name, so nginx names the site itself.
+      frappeSiteNameHeader: farmer-app-service.development.oanstaging.com
+      # APISIX reaches nginx from the k3s pod network: trust its X-Forwarded-For for the client address.
+      upstreamRealIPAddress: 10.42.0.0/16
   persistence:
     worker:
       # ReadWriteMany from the NFS server.

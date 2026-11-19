@@ -105,25 +105,29 @@ pipeline {
         }
 
         // develop -> APISIX routes (chart apisix/k8s) on the oan_dev node, after the app deploy.
-        // Runs only when the routes or the gateway values changed.
+        // Installs when the merged change touched the routes or the gateway values, or when the release is
+        // missing. Not `changeset`: Jenkins compares with the previous build, so a branch's first build has an
+        // empty changeset and skipped the install. The diff is against the first parent, as for a merge
+        // commit; a shallow clone without it counts as changed (the install is idempotent).
         stage('develop → gateway (apisix)') {
-            when {
-                beforeAgent true
-                allOf {
-                    branch 'develop'
-                    anyOf {
-                        changeset 'apisix/**'
-                        changeset 'oan_farmer_app_service/api/**'
-                        changeset 'helm/environments/dev/oan-farmer-app-gateway.yaml'
-                    }
-                }
-            }
+            when { beforeAgent true; branch 'develop' }
             agent { label 'oan-ci-deploy' }
             options { timeout(time: 15, unit: 'MINUTES') }
             steps {
                 checkout scm
                 withCredentials([file(credentialsId: 'oan-dev-kubeconfig', variable: 'KUBECONFIG')]) {
-                    sh 'bash ci/deploy-gateway.sh'
+                    sh '''
+                        changed=$(git diff --name-only HEAD^1 HEAD 2>/dev/null || echo apisix/)
+                        if echo "$changed" | grep -qE '^(apisix/|oan_farmer_app_service/api/|helm/environments/dev/oan-farmer-app-gateway\\.yaml$)'; then
+                            echo "=== gateway files changed: deploying ==="
+                        elif ! helm -n "${FARMER_APP_NAMESPACE:-farmer-app}" status farmer-app-gateway >/dev/null 2>&1; then
+                            echo "=== farmer-app-gateway is not installed: deploying ==="
+                        else
+                            echo "=== gateway unchanged and installed: skipping ==="
+                            exit 0
+                        fi
+                        bash ci/deploy-gateway.sh
+                    '''
                 }
             }
         }
