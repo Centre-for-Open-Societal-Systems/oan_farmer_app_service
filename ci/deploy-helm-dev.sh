@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # deploy-helm-dev.sh - Install or upgrade the `farmer-app` Helm release on the oan_dev k3s node
-# Called by Jenkins for develop, after "Push image". Same as oan_a2c's ci/deploy-helm-dev.sh.
+# Called by Jenkins for develop, after "Package chart". Same as oan_a2c's ci/deploy-helm-dev.sh.
 #
 # Runs on the deploy agent with the kubeconfig Jenkins holds as `oan-dev-kubeconfig` (oan-helm chart
 # oan-cluster-access, which must list this namespace); the agent needs helm and kubectl, no AWS access:
@@ -13,8 +13,10 @@ set -euo pipefail
 
 NS="${FARMER_APP_NAMESPACE:-farmer-app}"
 RELEASE="${FARMER_APP_RELEASE:-farmer-app}"
-CHART=helm/oan-farmer-app-service
+CHART_TGZ="built-chart/oan-farmer-app-service-${IMMUTABLE_TAG}.tgz"
 VALUES=helm/environments/dev/oan-farmer-app-service.yaml
+
+test -f "${CHART_TGZ}" || { echo "${CHART_TGZ} is missing: run package_chart.py package first" >&2; exit 1; }
 
 echo "=== Deploying to oan_dev: release ${RELEASE}, namespace ${NS}, image tag ${IMMUTABLE_TAG} ==="
 
@@ -24,7 +26,7 @@ kubectl -n "${NS}" create secret generic oan-frappe-common-db \
   --dry-run=client -o yaml | kubectl apply -f -
 
 # No --atomic: a failed first install would uninstall the release, generated Secrets included.
-if ! helm upgrade --install "${RELEASE}" "${CHART}" --namespace "${NS}" -f "${VALUES}" \
+if ! helm upgrade --install "${RELEASE}" "${CHART_TGZ}" --namespace "${NS}" -f "${VALUES}" \
   --set frappe.image.tag="${IMMUTABLE_TAG}" \
   --wait --wait-for-jobs --timeout 30m; then
   echo "=== helm upgrade failed ==="
