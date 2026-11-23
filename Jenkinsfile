@@ -109,20 +109,11 @@ pipeline {
             }
         }
 
-        // The routes chart (apisix/k8s) is packaged and published like the app chart, but only for a build that
-        // changed the routes or the gateway values: those are the builds that install it.
+        // The routes chart (apisix/k8s) is packaged on every develop build: 'develop → gateway (apisix)' runs on
+        // every one and unstashes it before deciding whether to install. Gating this on `changeset` left no stash
+        // for a build that did not touch the gateway files, and that stage failed on the unstash.
         stage('Package gateway chart') {
-            when {
-                beforeAgent true
-                allOf {
-                    branch 'develop'
-                    anyOf {
-                        changeset 'apisix/**'
-                        changeset 'oan_farmer_app_service/api/**'
-                        changeset 'helm/environments/dev/oan-farmer-app-gateway.yaml'
-                    }
-                }
-            }
+            when { beforeAgent true; branch 'develop' }
             steps {
                 sh 'python3 ci/package_chart.py gateway-package'
                 stash name: 'built-gateway-chart', includes: 'built-gateway-chart/**'
