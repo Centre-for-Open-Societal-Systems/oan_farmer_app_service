@@ -1,0 +1,72 @@
+{
+  "actions": [],
+  "creation": "2026-11-03 10:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "min_app_version",
+    "timeouts_section",
+    "connect_timeout",
+    "read_timeout",
+    "upstreams_section",
+    "upstreams"
+  ],
+  "fields": [
+    {
+      "description": "An app older than this gets 426 Upgrade Required. Empty turns the gate off.",
+      "fieldname": "min_app_version",
+      "fieldtype": "Data",
+      "label": "Minimum App Version"
+    },
+    {
+      "fieldname": "timeouts_section",
+      "fieldtype": "Section Break",
+      "label": "Timeouts (seconds)"
+    },
+    {
+      "default": "3",
+      "fieldname": "connect_timeout",
+      "fieldtype": "Float",
+      "label": "Connect",
+      "reqd": 1
+    },
+    {
+      "default": "15",
+      "fieldname": "read_timeout",
+      "fieldtype": "Float",
+      "label": "Read",
+      "reqd": 1
+    },
+    {
+      "fieldname": "upstreams_section",
+      "fieldtype": "Section Break",
+      "label": "Backends"
+    },
+    {
+      "fieldname": "upstreams",
+      "fieldtype": "Table",
+      "label": "Backends",
+      "options": "OAN Farmer App Upstream"
+    }
+  ],
+  "index_web_pages_for_search": 0,
+  "issingle": 1,
+  "links": [],
+  "modified": "2026-11-03 18:30:00.000000",
+  "modified_by": "Administrator",
+  "module": "Farmer App",
+  "name": "OAN Farmer App Settings",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "read": 1,
+      "role": "System Manager",
+      "write": 1
+    }
+  ],
+  "sort_field": "creation",
+  "sort_order": "DESC",
+  "states": []
+}

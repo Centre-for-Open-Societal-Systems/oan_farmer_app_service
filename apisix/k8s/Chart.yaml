@@ -1,0 +1,8 @@
+apiVersion: v2
+name: oan-farmer-app-gateway
+description: APISIX Ingress Controller routes for the OAN farmer app
+type: application
+version: 0.0.1
+annotations:
+  oan.org/owner: OpenAgriNet (OAN)
+  oan.org/chart-source: https://github.com/Centre-for-Open-Societal-Systems/oan_farmer_app_service/tree/develop/apisix/k8s

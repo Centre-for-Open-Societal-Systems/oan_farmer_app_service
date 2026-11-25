@@ -1,0 +1,27 @@
+apiVersion: v2
+name: oan-farmer-app-service
+description: OAN farmer app (mobile BFF) Frappe app with oan_auth_service for OpenAgriNet (OAN);
+  deploys the OAN frappe chart with the farmer app defaults.
+type: application
+version: 0.0.1
+appVersion: version-16
+keywords:
+- oan
+- openagrinet
+- frappe
+- farmer-app
+home: https://github.com/Centre-for-Open-Societal-Systems/oan_farmer_app_service
+sources:
+- https://github.com/Centre-for-Open-Societal-Systems/oan_farmer_app_service
+- https://github.com/Centre-for-Open-Societal-Systems/oan_auth_service
+- https://github.com/Centre-for-Open-Societal-Systems/oan-helm
+maintainers:
+- name: OpenAgriNet (OAN)
+  url: https://github.com/Centre-for-Open-Societal-Systems/oan-helm
+dependencies:
+- name: frappe-service
+  alias: frappe
+  version: 8.0.91-oan.4
+annotations:
+  oan.org/owner: OpenAgriNet (OAN)
+  oan.org/application-source: https://github.com/Centre-for-Open-Societal-Systems/oan_farmer_app_service

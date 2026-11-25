@@ -1,0 +1,18 @@
+name: Linters
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linters-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    # Commit titles, pre-commit with this repo's .pre-commit-config.yaml, semgrep and pip-audit.
+    uses: Centre-for-Open-Societal-Systems/oan_auth_service/.github/workflows/linters.yml@develop
