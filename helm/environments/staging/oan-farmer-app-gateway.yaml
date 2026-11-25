@@ -1,0 +1,42 @@
+# Values for the oan-farmer-app-gateway chart (apisix/k8s) on the QA RKE2 node (qa.oanstaging.com), the staging environment, namespace `farmer-app`.
+# Installed by the Jenkins stage "staging → QA cluster (apisix)" (ci/deploy-gateway.sh). APISIX and its Ingress Controller run in namespace api6-gateway on the
+# same node; this chart only holds ApisixRoute/ApisixUpstream objects. See apisix/README.md.
+#
+# Set at install, not here:
+# - redis.host: the Redis Service of the APISIX release (ci/deploy-gateway.sh looks it up)
+
+ingressClassName: apisix
+
+# The public host. Routes match it, so apps that share paths (/v1/auth/*) stay apart on one gateway.
+# No `tls`: on QA APISIX terminates TLS for every *.qa.oanstaging.com host with one wildcard
+# (oan-helm environments/qa/values/oan-apisix-gateway.yaml), so this chart creates no ApisixTls.
+hosts:
+  - farmer-app-service.qa.oanstaging.com
+
+# Frappe site name, sent as Host because Frappe selects the site from it.
+siteName: farmer-app-service.qa.oanstaging.com
+
+# The Frappe gunicorn Service of release `farmer-app` (helm/oan-farmer-app-service) in this namespace.
+web:
+  serviceName: farmer-app-frappe-gunicorn
+  port: 8000
+
+# Attachment and export routes go to the grievance backend. The chart uses `host` both as a Service
+# name in this namespace and as the Host header (scheme https), so it needs a Service of that name
+# that reaches the grievance backend over TLS. Not wired on QA yet.
+grievance:
+  host: grievance-backend
+  port: 443
+
+# Localhost only until the farmer app UI hosts are confirmed.
+corsOriginRegexes:
+  - https?://localhost(:[0-9]+)?
+
+# The Frappe desk (/app) on its own host, sent to the frappe nginx Service (templates/desk.yaml). Public on
+# this QA instance; `allowlist` (CIDRs) restricts it, `enabled: false` removes it.
+desk:
+  enabled: true
+  host: farmer-app-service-desk.qa.oanstaging.com
+  serviceName: farmer-app-frappe
+  port: 8080
+  allowlist: []

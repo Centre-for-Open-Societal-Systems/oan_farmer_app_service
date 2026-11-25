@@ -1,10 +1,15 @@
-// Farmer app (mobile BFF) - build, push and deploy to the oan_dev k3s node.
+// Farmer app (mobile BFF) - build, push and deploy to the oan_dev k3s node; staging promotes it to the QA cluster.
 //
 //  develop -> image eoan/oan-farmer-app-service/farmer-app-service:<__version__>-develop.<build> (= chart version)
 //             + ci/package_chart.py package (chart helm/oan-farmer-app-service with that version and image)
 //             + ci/deploy-helm-dev.sh (release `farmer-app`, namespace `farmer-app`, from that archive)
 //             + ci/deploy-gateway.sh (APISIX routes, chart apisix/k8s, only when they changed)
 //             + ci/package_chart.py publish (the same archives to repository/develop/ of oan-helm)
+//  staging -> ci/package_chart.py promote (develop's chart of this very source tree; its image also gets the
+//             <init.yaml version>-staging.<build> tag, nothing is rebuilt)
+//             + ci/deploy-helm-dev.sh with DEPLOY_ENV=staging (release `farmer-app`, namespace `farmer-app`, QA cluster
+//               through `oan-qa-kubeconfig`) + ci/deploy-gateway.sh (the routes of apisix/k8s, values of staging)
+//             + Verify (farmer-app-service.qa.oanstaging.com) + ci/package_chart.py publish (repository/staging/)
 //  other branches: checks only (Lint is the GitHub workflow's job; nothing to build here).
 pipeline {
     agent any
@@ -33,10 +38,11 @@ pipeline {
             steps {
                 checkout scm
                 script {
-                    def version = sh(returnStdout: true,
-                        script: "sed -n 's/^__version__ = \"\\(.*\\)\"/\\1/p' oan_farmer_app_service/__init__.py").trim()
-                    env.IMMUTABLE_TAG = "${version}-develop.${env.BUILD_NUMBER}"
-                    env.IMAGE_URI     = "${env.IMAGE_REGISTRY}/${env.ECR_REPO}"
+                    // develop: <__version__>-develop.<build>; staging: <init.yaml version>-staging.<build>.
+                    if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'staging') {
+                        env.IMMUTABLE_TAG = sh(returnStdout: true, script: 'python3 ci/package_chart.py version').trim()
+                    }
+                    env.IMAGE_URI = "${env.IMAGE_REGISTRY}/${env.ECR_REPO}"
                     echo "Branch ${env.BRANCH_NAME} -> image ${env.IMAGE_URI}:${env.IMMUTABLE_TAG}"
                 }
             }
@@ -94,8 +100,9 @@ pipeline {
         // Flow (develop): Checkout (version) -> Build image -> Push image -> Package chart -> deploy -> Publish chart.
         // helm/oan-farmer-app-service is zipped with this build's image before the deploy; the deploy installs
         // that archive, and the same archive is published to oan-helm afterwards.
+        // staging: `promote` instead of `package`: develop's chart for this source tree, its image tagged for staging.
         stage('Package chart') {
-            when { branch 'develop' }
+            when { anyOf { branch 'develop'; branch 'staging' } }
             steps {
                 script {
                     env.IMAGE_TAG = env.IMMUTABLE_TAG
@@ -103,7 +110,23 @@ pipeline {
                     env.COMMIT_SUBJECT = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
                     env.IMAGE_REPOSITORY = env.IMAGE_URI
                 }
-                sh 'python3 ci/package_chart.py package'
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-ecr-creds'
+                ]]) {
+                    script {
+                        if (env.BRANCH_NAME == 'develop') {
+                            // The chart pins the image by digest, which the staging promotion needs to tag the same image.
+                            env.IMAGE_DIGEST = sh(returnStdout: true, script: 'aws ecr describe-images --region "$AWS_REGION" --repository-name "$ECR_REPO" --image-ids imageTag="$IMMUTABLE_TAG" --query "imageDetails[0].imageDigest" --output text').trim()
+                        } else {
+                            // The workspace holds the staging branch only; promote needs the develop commits the chart index names.
+                            withCredentials([gitUsernamePassword(credentialsId: scm.userRemoteConfigs[0].credentialsId, gitToolName: 'Default')]) {
+                                sh 'git fetch --quiet --no-tags origin +refs/heads/develop:refs/remotes/origin/develop'
+                            }
+                        }
+                    }
+                    sh "python3 ci/package_chart.py ${env.BRANCH_NAME == 'staging' ? 'promote' : 'package'}"
+                }
                 // The deploy stages run on the VPN deploy agent, which gets the archive from here.
                 stash name: 'built-chart', includes: 'built-chart/**'
             }
@@ -132,6 +155,33 @@ pipeline {
                 unstash 'built-chart'
                 withCredentials([file(credentialsId: 'oan-dev-kubeconfig', variable: 'KUBECONFIG')]) {
                     sh 'bash ci/deploy-helm-dev.sh'
+                }
+            }
+        }
+
+        // staging -> Helm release `farmer-app` on the QA cluster from the promoted archive, then its APISIX routes.
+        stage('staging → QA cluster (helm)') {
+            when { beforeAgent true; branch 'staging' }
+            agent { label 'oan-ci-deploy' }   // VPN agent with helm and kubectl; must reach the QA API
+            options { timeout(time: 45, unit: 'MINUTES') }
+            steps {
+                checkout scm
+                unstash 'built-chart'
+                withCredentials([file(credentialsId: 'oan-qa-kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh 'DEPLOY_ENV=staging bash ci/deploy-helm-dev.sh'
+                }
+            }
+        }
+
+        // The routes are the committed chart folder: develop already built and published its archive from this tree.
+        stage('staging → QA cluster (apisix)') {
+            when { beforeAgent true; branch 'staging' }
+            agent { label 'oan-ci-deploy' }
+            options { timeout(time: 15, unit: 'MINUTES') }
+            steps {
+                checkout scm
+                withCredentials([file(credentialsId: 'oan-qa-kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh 'GATEWAY_VALUES=helm/environments/staging/oan-farmer-app-gateway.yaml bash ci/deploy-gateway.sh'
                 }
             }
         }
@@ -168,15 +218,18 @@ pipeline {
 
         // Through APISIX on oan_dev by its private address: public DNS may still point elsewhere.
         // Any answer but 404/5xx means APISIX routed it to Frappe (a token-less call answers 401).
+        // staging: the QA names are public DNS, no --resolve needed.
         stage('Verify') {
-            when { beforeAgent true; branch 'develop' }
+            when { beforeAgent true; anyOf { branch 'develop'; branch 'staging' } }
             agent { label 'oan-ci-deploy' }
             steps {
                 sh '''
                     host=farmer-app-service.development.oanstaging.com
+                    resolve="--resolve $host:443:$OAN_DEV_EDGE_IP"
+                    if [ "$BRANCH_NAME" = "staging" ]; then host=farmer-app-service.qa.oanstaging.com; resolve=""; fi
                     url="https://$host/v1/auth/me"
                     for i in $(seq 1 10); do
-                        code=$(curl -s -o /dev/null -w "%{http_code}" -m 10 --resolve "$host:443:$OAN_DEV_EDGE_IP" "$url" || true)
+                        code=$(curl -s -o /dev/null -w "%{http_code}" -m 10 $resolve "$url" || true)
                         echo "attempt $i: $url -> $code"
                         case "$code" in 2??|401|403) exit 0 ;; esac
                         sleep 6
@@ -187,10 +240,10 @@ pipeline {
             }
         }
 
-        // Adds the archive built by 'Package chart' to repository/develop/ of oan-helm, only after
-        // the oan_dev deploy and Verify succeeded.
+        // Adds the archive built by 'Package chart' to repository/<branch>/ of oan-helm, only after
+        // the deploy and Verify succeeded.
         stage('Publish chart') {
-            when { branch 'develop' }
+            when { anyOf { branch 'develop'; branch 'staging' } }
             steps {
                 // UNSTABLE, not failed: the image is already deployed.
                 catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# deploy-gateway.sh - Install or upgrade the farmer app APISIX routes (chart apisix/k8s) on the oan_dev k3s node
+# deploy-gateway.sh - Install or upgrade the farmer app APISIX routes (chart apisix/k8s) on the oan_dev k3s node or the QA cluster
+# (GATEWAY_VALUES picks the environment; staging deploys the chart folder, develop already built and published the archive)
 # Same as oan_a2c's ci/deploy-gateway.sh.
 #
 # The routes are generated from the declared endpoints (apisix/generate_apisix_config.py) and committed, so
