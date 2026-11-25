@@ -1,223 +1,69 @@
-"""Package helm/oan-farmer-app-service with this build's image, and publish that archive to oan-helm.
+"""Package helm/oan-farmer-app-service with this build's image, promote it to staging and publish it to oan-helm.
 
-Run by the Jenkins stages "Package chart" and "Publish chart" of every develop build:
+Run by the Jenkins stages of every develop and staging build. The steps are oan-helm's scripts/ci/app_chart.py;
+this file only holds the constants of this repository and loads that file at OAN_HELM_REF:
 
-    package_chart.py version   prints the chart version, which is also the image tag of the build:
-                               <__version__ of oan_farmer_app_service>-develop.<BUILD_NUMBER>, e.g. 0.0.1-develop.57 (develop only)
-    package_chart.py package   writes built-chart/oan-farmer-app-service-<version>.tgz
-    package_chart.py publish   adds that archive to repository/develop/ of oan-helm
-    package_chart.py gateway-package   writes built-gateway-chart/oan-farmer-app-gateway-<version>.tgz, the routes chart
-                               of apisix/k8s, with the version of the build
-    package_chart.py gateway-publish   adds that archive to repository/develop/ of oan-helm
+    package_chart.py version   the chart version, also the image tag: <version>-develop.<BUILD_NUMBER> on develop,
+                               <init.yaml version>-staging.<BUILD_NUMBER> on staging
+    package_chart.py package   develop: writes built-chart/oan-grievance-ui-<version>.tgz with the image pinned by digest
+    package_chart.py promote   staging: the develop chart of this source tree, its image also tagged for staging
+    package_chart.py publish   adds built-chart/ to repository/<branch>/ of oan-helm
+    package_chart.py gateway-package, gateway-publish   the same for the routes chart apisix/k8s (develop only)
 
-The Chart.yaml annotations and the publisher come from scripts/ci of oan-helm, so this chart is listed like the registry
-charts. The version is 0.0.1-develop.N, which publish_chart.py sends to repository/develop/. The chart keeps its frappe-service dependency vendored in helm/oan-farmer-app-service/charts,
-so, unlike the registry charts, nothing is downloaded.
-
-version needs BRANCH_NAME (develop) and BUILD_NUMBER. package needs IMAGE_REPOSITORY (registry/repository, no tag), IMAGE_TAG, SOURCE_COMMIT, BRANCH_NAME and COMMIT_SUBJECT.
-publish needs GH_TOKEN with push access to oan-helm. DRY_RUN=1 publishes nothing. Standard library only.
-
-Exit codes: 0 done (or already published by an earlier run of this commit), 1 failure, 3 no credential.
+See the docstring of app_chart.py for the environment each action needs.
 """
 
-import io
-import os
-import re
+import importlib.util
 import shutil
 import subprocess
 import sys
-import tarfile
 import tempfile
-import urllib.error
-import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CHART = "oan-farmer-app-service"
-GATEWAY_CHART = "oan-farmer-app-gateway"
-OAN_HELM_SLUG = "Centre-for-Open-Societal-Systems/oan-helm"
-OAN_HELM = "https://github.com/%s.git" % OAN_HELM_SLUG
-ALREADY_PUBLISHED = 4
-OUTPUT = ROOT / "built-chart"
-GATEWAY_OUTPUT = ROOT / "built-gateway-chart"
+OAN_HELM = "https://github.com/Centre-for-Open-Societal-Systems/oan-helm.git"
+OAN_HELM_REF = "9e65eb8d78801c14d023355cdfc0cae730267423"
+
+CONFIG = {
+    "chart": "oan-farmer-app-service",
+    "source_repository": "Centre-for-Open-Societal-Systems/oan_farmer_app_service",
+    "release_name": "farmer-app",
+    "release_namespace": "farmer-app",
+    "values_overlay": "helm/environments/dev/oan-farmer-app-service.yaml",
+    "image_path": "frappe.image",
+    "version": {"file": "oan_farmer_app_service/__init__.py", "pattern": r'(?m)^__version__ = "(\d+\.\d+\.\d+)"$'},
+    "promote": {
+        "release_name": "farmer-app",
+        "release_namespace": "farmer-app",
+        "values_overlay": "helm/environments/staging/oan-farmer-app-service.yaml",
+    },
+    "gateway": {
+        "chart": "oan-farmer-app-gateway",
+        "source": "apisix/k8s",
+        "release_name": "farmer-app-gateway",
+        "values_overlay": "helm/environments/dev/oan-farmer-app-gateway.yaml",
+    },
+}
 
 
-def run(command, cwd=None, env=None):
-	return subprocess.run(
-		command, cwd=str(cwd or ROOT), env=env, check=True, stdout=subprocess.PIPE, text=True
-	).stdout
-
-
-def fetch_publisher(work):
-	"""scripts/ci of oan-helm main, without its repository/ archives."""
-	target = work / "oan-helm"
-	run(["git", "clone", "--quiet", "--depth", "1", "--filter=blob:none", "--sparse", OAN_HELM, str(target)])
-	run(["git", "sparse-checkout", "set", "scripts/ci"], cwd=target)
-	return target / "scripts/ci"
-
-
-def load_generic(work):
-	scripts = fetch_publisher(work)
-	sys.path.insert(0, str(scripts))
-	import package_chart as generic  # oan-helm's, fetched above
-
-	return generic
-
-
-def app_version():
-	match = re.search(
-		r'(?m)^__version__ = "(\d+\.\d+\.\d+)"$',
-		(ROOT / "oan_farmer_app_service" / "__init__.py").read_text(encoding="utf-8"),
-	)
-	if not match:
-		raise ValueError('no __version__ = "N.N.N" in oan_farmer_app_service/__init__.py')
-	return match.group(1)
-
-
-def chart_version(env):
-	"""<__version__>-develop.<BUILD_NUMBER>, a version publish_chart.py puts in repository/develop/."""
-	if env["BRANCH_NAME"] != "develop":
-		raise ValueError("only develop packages the chart, not %s" % env["BRANCH_NAME"])
-	return "%s-develop.%s" % (app_version(), env["BUILD_NUMBER"])
-
-
-def version_build(env, work):
-	print(chart_version(env))
-	return 0
-
-
-def package_build(env, work):
-	generic = load_generic(work)
-	version = chart_version(env)
-	if env["IMAGE_TAG"] != version:
-		raise ValueError("image tag %s is not the chart version %s" % (env["IMAGE_TAG"], version))
-	chart = work / CHART
-	shutil.copytree(str(ROOT / "helm" / CHART), str(chart))
-	values = chart / "values.yaml"
-	values.write_text(
-		generic.set_image(
-			values.read_text(encoding="utf-8"), "frappe.image", env["IMAGE_REPOSITORY"], env["IMAGE_TAG"]
-		),
-		encoding="utf-8",
-	)
-	metadata = chart / "Chart.yaml"
-	metadata.write_text(
-		generic.annotate(
-			metadata.read_text(encoding="utf-8"),
-			{
-				"oan.org/source-repository": "Centre-for-Open-Societal-Systems/oan_farmer_app_service",
-				"oan.org/source-commit": env["SOURCE_COMMIT"],
-				"oan.org/source-subject": env.get("COMMIT_SUBJECT", "")[:200],
-				"oan.org/release-name": "farmer-app",
-				"oan.org/release-namespace": "farmer-app",
-				"oan.org/values-overlay": "helm/environments/dev/oan-farmer-app-service.yaml",
-			},
-		),
-		encoding="utf-8",
-	)
-	shutil.rmtree(str(OUTPUT), ignore_errors=True)
-	OUTPUT.mkdir()
-	run(["helm", "package", str(chart), "--version", version, "--destination", str(OUTPUT)])
-	print("packaged %s-%s.tgz" % (CHART, version))
-	return 0
-
-
-def gateway_package_build(env, work):
-	"""apisix/k8s as a chart of its own: the routes, versioned like the app chart and annotated with this commit."""
-	generic = load_generic(work)
-	version = chart_version(env)
-	chart = work / GATEWAY_CHART
-	shutil.copytree(str(ROOT / "apisix" / "k8s"), str(chart))
-	metadata = chart / "Chart.yaml"
-	metadata.write_text(
-		generic.annotate(
-			metadata.read_text(encoding="utf-8"),
-			{
-				"oan.org/source-repository": "Centre-for-Open-Societal-Systems/oan_farmer_app_service",
-				"oan.org/source-commit": env["SOURCE_COMMIT"],
-				"oan.org/source-subject": env.get("COMMIT_SUBJECT", "")[:200],
-				"oan.org/release-name": "farmer-app-gateway",
-				"oan.org/release-namespace": "farmer-app",
-				"oan.org/values-overlay": "helm/environments/dev/oan-farmer-app-gateway.yaml",
-			},
-		),
-		encoding="utf-8",
-	)
-	shutil.rmtree(str(GATEWAY_OUTPUT), ignore_errors=True)
-	GATEWAY_OUTPUT.mkdir()
-	run(["helm", "package", str(chart), "--version", version, "--destination", str(GATEWAY_OUTPUT)])
-	print("packaged %s-%s.tgz" % (GATEWAY_CHART, version))
-	return 0
-
-
-def published_commit(env, name, chart=CHART):
-	"""oan.org/source-commit of the archive already in repository/develop/ of oan-helm, or None."""
-	request = urllib.request.Request(
-		"https://api.github.com/repos/%s/contents/repository/develop/%s" % (OAN_HELM_SLUG, name),
-		headers={
-			"Accept": "application/vnd.github.raw",
-			"Authorization": "Bearer " + env.get("GH_TOKEN", ""),
-		},
-	)
-	try:
-		with urllib.request.urlopen(request) as response:
-			data = response.read()
-		with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as archive:
-			text = archive.extractfile("%s/Chart.yaml" % chart).read().decode("utf-8")
-	except (OSError, KeyError, tarfile.TarError):
-		return None
-	match = re.search(r"oan\.org/source-commit: *\"?([0-9a-f]{7,40})", text)
-	return match.group(1) if match else None
-
-
-def publish_build(env, work, output=OUTPUT, chart=CHART):
-	if env.get("DRY_RUN") != "1" and not env.get("GH_TOKEN"):
-		print("FAIL: no GitHub credential: the chart was not published.")
-		return 3
-	archives = sorted(output.glob("*.tgz"))
-	if len(archives) != 1:
-		raise ValueError("expected the one archive of this build in %s" % output)
-	scripts = fetch_publisher(work)
-	result = subprocess.run([sys.executable, str(scripts / "publish_chart.py"), str(archives[0])], env=env)
-	if result.returncode == ALREADY_PUBLISHED:
-		# Build numbers can repeat (job recreated), so a taken version is only fine if it holds this commit.
-		if published_commit(env, archives[0].name, chart) == env["SOURCE_COMMIT"]:
-			print("%s was published by an earlier run of this commit." % archives[0].name)
-			return 0
-		print(
-			"FAIL: %s is already published for another commit; the chart was not published."
-			% archives[0].name
-		)
-		return 1
-	return result.returncode
-
-
-def gateway_publish_build(env, work):
-	return publish_build(env, work, GATEWAY_OUTPUT, GATEWAY_CHART)
-
-
-def main(argv=None, env=None):
-	argv = sys.argv[1:] if argv is None else argv
-	env = dict(os.environ if env is None else env)
-	actions = {
-		"version": version_build,
-		"package": package_build,
-		"publish": publish_build,
-		"gateway-package": gateway_package_build,
-		"gateway-publish": gateway_publish_build,
-	}
-	if len(argv) != 1 or argv[0] not in actions:
-		print("usage: package_chart.py version|package|publish|gateway-package|gateway-publish")
-		return 1
-	work = Path(tempfile.mkdtemp(prefix="farmer-app-chart-"))
-	try:
-		return actions[argv[0]](env, work)
-	except (KeyError, ValueError, OSError, subprocess.CalledProcessError) as error:
-		print("FAIL: %s: %s" % (error.__class__.__name__, error))
-		return 1
-	finally:
-		shutil.rmtree(str(work), ignore_errors=True)
+def load_app_chart(work):
+    """scripts/ci of oan-helm at OAN_HELM_REF, without its repository/ archives."""
+    target = work / "oan-helm"
+    for command in (
+        ["git", "clone", "--quiet", "--filter=blob:none", "--sparse", "--no-checkout", OAN_HELM, str(target)],
+        ["git", "sparse-checkout", "set", "scripts/ci"],
+        ["git", "checkout", "--quiet", OAN_HELM_REF],
+    ):
+        subprocess.run(command, cwd=str(target if command[1] != "clone" else ROOT), check=True)
+    spec = importlib.util.spec_from_file_location("oan_app_chart", target / "scripts/ci/app_chart.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 if __name__ == "__main__":
-	sys.exit(main())
+    work = Path(tempfile.mkdtemp(prefix="oan-helm-"))
+    try:
+        sys.exit(load_app_chart(work).main(CONFIG, ROOT))
+    finally:
+        shutil.rmtree(str(work), ignore_errors=True)
