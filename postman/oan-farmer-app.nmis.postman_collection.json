@@ -243,7 +243,11 @@
                   "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
                   "  });",
                   "}",
-                  ""
+                  "const b = pm.response.json();",
+                  "pm.test(\"has list and pagination\", () => {",
+                  "  pm.expect(b.data).to.be.an(\"array\");",
+                  "  pm.expect(b.pagination).to.have.property(\"hasNext\");",
+                  "});"
                 ]
               }
             }
@@ -321,7 +325,11 @@
                   "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
                   "  });",
                   "}",
-                  ""
+                  "const b = pm.response.json();",
+                  "pm.test(\"has list and pagination\", () => {",
+                  "  pm.expect(b.data).to.be.an(\"array\");",
+                  "  pm.expect(b.pagination).to.have.property(\"hasNext\");",
+                  "});"
                 ]
               }
             }
@@ -571,7 +579,11 @@
                   "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
                   "  });",
                   "}",
-                  ""
+                  "const b = pm.response.json();",
+                  "pm.test(\"has list and pagination\", () => {",
+                  "  pm.expect(b.data).to.be.an(\"array\");",
+                  "  pm.expect(b.pagination).to.have.property(\"hasNext\");",
+                  "});"
                 ]
               }
             }
@@ -649,7 +661,11 @@
                   "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
                   "  });",
                   "}",
-                  ""
+                  "const b = pm.response.json();",
+                  "pm.test(\"has list and pagination\", () => {",
+                  "  pm.expect(b.data).to.be.an(\"array\");",
+                  "  pm.expect(b.pagination).to.have.property(\"hasNext\");",
+                  "});"
                 ]
               }
             }
@@ -733,7 +749,8 @@
                   "  pm.expect(d).to.have.property(\"available\");",
                   "  pm.expect(d.currency).to.eql(\"ETB\");",
                   "  pm.expect(d).to.have.property(\"prices\");",
-                  "});"
+                  "});",
+                  "if (d.price_date) pm.collectionVariables.set(\"price_date\", d.price_date);"
                 ]
               }
             }
@@ -894,7 +911,12 @@
                   "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
                   "  });",
                   "}",
-                  ""
+                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"has price fields\", () => {",
+                  "  pm.expect(d).to.have.property(\"available\");",
+                  "  pm.expect(d.currency).to.eql(\"ETB\");",
+                  "  pm.expect(d).to.have.property(\"prices\");",
+                  "});"
                 ]
               }
             }
@@ -972,7 +994,12 @@
                   "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
                   "  });",
                   "}",
-                  ""
+                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"has price fields\", () => {",
+                  "  pm.expect(d).to.have.property(\"available\");",
+                  "  pm.expect(d.currency).to.eql(\"ETB\");",
+                  "  pm.expect(d).to.have.property(\"prices\");",
+                  "});"
                 ]
               }
             }
@@ -1140,7 +1167,12 @@
                   "    pm.expect(text).to.not.match(/https?:\\/\\/(?:127\\.0\\.0\\.1|localhost)/);",
                   "  });",
                   "}",
-                  ""
+                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"has price fields\", () => {",
+                  "  pm.expect(d).to.have.property(\"available\");",
+                  "  pm.expect(d.currency).to.eql(\"ETB\");",
+                  "  pm.expect(d).to.have.property(\"prices\");",
+                  "});"
                 ]
               }
             }

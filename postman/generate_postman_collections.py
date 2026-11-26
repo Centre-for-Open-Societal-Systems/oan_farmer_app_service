@@ -339,6 +339,23 @@ CONSENT = [
 	),
 ]
 
+_NMIS_LIST_TEST = (
+	"const b = pm.response.json();\n"
+	'pm.test("has list and pagination", () => {\n'
+	'  pm.expect(b.data).to.be.an("array");\n'
+	'  pm.expect(b.pagination).to.have.property("hasNext");\n'
+	"});"
+)
+
+_NMIS_PRICE_TEST = (
+	"const d = pm.response.json().data || {};\n"
+	'pm.test("has price fields", () => {\n'
+	'  pm.expect(d).to.have.property("available");\n'
+	'  pm.expect(d.currency).to.eql("ETB");\n'
+	'  pm.expect(d).to.have.property("prices");\n'
+	"});"
+)
+
 # --------------------------------------------------------------------------------- NMIS
 NMIS = [
 	folder("00 Gate", [gate("/market-prices/commodities")]),
@@ -363,12 +380,8 @@ NMIS = [
 				"/market-prices/commodities",
 				[200],
 				query={"page": "1", "limit": "100"},
-				tests="const b = pm.response.json();\n"
-				'pm.test("has list and pagination", () => {\n'
-				'  pm.expect(b.data).to.be.an("array");\n'
-				'  pm.expect(b.pagination).to.have.property("hasNext");\n'
-				"});\n"
-				"if (b.data && b.data.length) {\n"
+				tests=_NMIS_LIST_TEST
+				+ "\nif (b.data && b.data.length) {\n"
 				'  pm.collectionVariables.set("commodity_id", String(b.data[0].id));\n'
 				'  pm.collectionVariables.set("commodity_name", b.data[0].name);\n'
 				"}",
@@ -379,6 +392,7 @@ NMIS = [
 				"/market-prices/commodities",
 				[200],
 				query={"search": "{{commodity_name}}", "limit": "20"},
+				tests=_NMIS_LIST_TEST,
 			),
 			request(
 				"List crops only",
@@ -386,6 +400,7 @@ NMIS = [
 				"/market-prices/commodities",
 				[200],
 				query={"type": "crop", "limit": "100"},
+				tests=_NMIS_LIST_TEST,
 			),
 			request(
 				"List livestock only",
@@ -393,12 +408,8 @@ NMIS = [
 				"/market-prices/commodities",
 				[200],
 				query={"type": "livestock", "limit": "100"},
-				tests="const b = pm.response.json();\n"
-				'pm.test("has list and pagination", () => {\n'
-				'  pm.expect(b.data).to.be.an("array");\n'
-				'  pm.expect(b.pagination).to.have.property("hasNext");\n'
-				"});\n"
-				"if (b.data && b.data.length) {\n"
+				tests=_NMIS_LIST_TEST
+				+ "\nif (b.data && b.data.length) {\n"
 				'  pm.collectionVariables.set("livestock_id", String(b.data[0].id));\n'
 				'  pm.collectionVariables.set("livestock_name", b.data[0].name);\n'
 				"}",
@@ -409,12 +420,8 @@ NMIS = [
 				"/market-prices/markets",
 				[200],
 				query={"page": "1", "limit": "100"},
-				tests="const b = pm.response.json();\n"
-				'pm.test("has list and pagination", () => {\n'
-				'  pm.expect(b.data).to.be.an("array");\n'
-				'  pm.expect(b.pagination).to.have.property("hasNext");\n'
-				"});\n"
-				"if (b.data && b.data.length) {\n"
+				tests=_NMIS_LIST_TEST
+				+ "\nif (b.data && b.data.length) {\n"
 				'  pm.collectionVariables.set("marketplace_id", String(b.data[0].id));\n'
 				'  pm.collectionVariables.set("marketplace_name", b.data[0].name);\n'
 				"}",
@@ -425,6 +432,7 @@ NMIS = [
 				"/market-prices/markets",
 				[200],
 				query={"search": "addis", "limit": "20"},
+				tests=_NMIS_LIST_TEST,
 			),
 			request(
 				"List markets (alias /marketplaces)",
@@ -432,6 +440,7 @@ NMIS = [
 				"/market-prices/marketplaces",
 				[200],
 				query={"limit": "20"},
+				tests=_NMIS_LIST_TEST,
 			),
 		],
 	),
@@ -444,12 +453,8 @@ NMIS = [
 				"/market-prices/latest",
 				[200],
 				query={"commodity_id": "{{commodity_id}}", "marketplace_id": "{{marketplace_id}}"},
-				tests="const d = pm.response.json().data || {};\n"
-				'pm.test("has price fields", () => {\n'
-				'  pm.expect(d).to.have.property("available");\n'
-				'  pm.expect(d.currency).to.eql("ETB");\n'
-				'  pm.expect(d).to.have.property("prices");\n'
-				"});",
+				tests=_NMIS_PRICE_TEST
+				+ '\nif (d.price_date) pm.collectionVariables.set("price_date", d.price_date);',
 			),
 			request(
 				"Latest livestock price (by ID)",
@@ -457,12 +462,7 @@ NMIS = [
 				"/market-prices/latest",
 				[200],
 				query={"commodity_id": "{{livestock_id}}", "marketplace_id": "{{marketplace_id}}"},
-				tests="const d = pm.response.json().data || {};\n"
-				'pm.test("has price fields", () => {\n'
-				'  pm.expect(d).to.have.property("available");\n'
-				'  pm.expect(d.currency).to.eql("ETB");\n'
-				'  pm.expect(d).to.have.property("prices");\n'
-				"});",
+				tests=_NMIS_PRICE_TEST,
 			),
 			request(
 				"Latest by names",
@@ -470,6 +470,7 @@ NMIS = [
 				"/market-prices/latest",
 				[200],
 				query={"commodity": "{{commodity_name}}", "marketplace": "{{marketplace_name}}"},
+				tests=_NMIS_PRICE_TEST,
 			),
 			request(
 				"Latest with type filter",
@@ -481,6 +482,7 @@ NMIS = [
 					"marketplace": "{{marketplace_name}}",
 					"commodity_type": "crop",
 				},
+				tests=_NMIS_PRICE_TEST,
 			),
 		],
 	),
@@ -505,6 +507,7 @@ NMIS = [
 				"/market-prices",
 				[200],
 				query={"commodity_id": "{{commodity_id}}", "marketplace_id": "{{marketplace_id}}"},
+				tests=_NMIS_PRICE_TEST,
 			),
 		],
 	),
