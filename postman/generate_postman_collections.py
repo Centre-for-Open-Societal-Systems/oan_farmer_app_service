@@ -367,8 +367,8 @@ _NMIS_PRICE_TEST = (
 	"});"
 )
 
-# --------------------------------------------------------------------------------- NMIS
-NMIS = [
+# --------------------------------------------------------------------------------- Marketplace
+MARKETPLACE = [
 	folder("00 Gate", [gate("/market-prices/commodities")]),
 	folder(
 		"01 Health",
@@ -613,10 +613,10 @@ COLLECTIONS = {
 		CONSENT,
 		"Consent Manager routes of the farmer app gateway: /consents, /consent-receipts.",
 	),
-	"OAN Farmer App - NMIS": (
-		"oan-farmer-app.nmis.postman_collection.json",
-		NMIS,
-		"NMIS Public API routes of the farmer app gateway: /health, /market-prices.",
+	"OAN Farmer App - Marketplace": (
+		"oan-farmer-app.marketplace.postman_collection.json",
+		MARKETPLACE,
+		"Marketplace (NMIS Public API) routes of the farmer app gateway: /health, /market-prices.",
 	),
 }
 
@@ -624,7 +624,7 @@ SERVICE = {
 	"OAN Farmer App - Grievance": "grievance",
 	"OAN Farmer App - A2C": "a2c",
 	"OAN Farmer App - Consent": "consent",
-	"OAN Farmer App - NMIS": "nmis",
+	"OAN Farmer App - Marketplace": "marketplace",
 }
 
 
@@ -652,7 +652,7 @@ ENVIRONMENT = {
 		{"key": "grievance_version", "value": "v1", "enabled": True},
 		{"key": "a2c_version", "value": "v1", "enabled": True},
 		{"key": "consent_version", "value": "v1", "enabled": True},
-		{"key": "nmis_version", "value": "v1", "enabled": True},
+		{"key": "marketplace_version", "value": "v1", "enabled": True},
 		{"key": "access_token", "value": "", "type": "secret", "enabled": True},
 		{"key": "app_version", "value": "1.0.0", "enabled": True},
 		{"key": "area", "value": "", "enabled": True},
@@ -669,7 +669,7 @@ def check_coverage():
 	"""Every route the app declares, except the login exchange, is in a collection."""
 	from oan_auth_service.api.router import declared_routes
 
-	from oan_farmer_app_service.api.v1 import a2c, auth, consent, grievance, nmis  # noqa: F401
+	from oan_farmer_app_service.api.v1 import a2c, auth, consent, grievance, marketplace  # noqa: F401
 
 	def norm(p):
 		import re

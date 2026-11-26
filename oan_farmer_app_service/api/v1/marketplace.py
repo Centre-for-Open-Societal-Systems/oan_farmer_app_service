@@ -1,4 +1,4 @@
-"""NMIS Public API backend (read-only validated agricultural market prices).
+"""Marketplace (NMIS Public API) backend for read-only validated agricultural market prices.
 
 The gateway verifies the farmer's JWT, but does not forward it (`forward_token=False`)
 because NMIS is a public, unauthenticated third-party API.
@@ -7,13 +7,13 @@ because NMIS is a public, unauthenticated third-party API.
 from oan_farmer_app_service.api.proxy import Route, declare
 
 declare(
-	"nmis",
+	"marketplace",
 	[
 		Route(
 			("GET",),
 			"/health",
 			"/{version}/health",
-			"NMIS service health check",
+			"Marketplace service health check",
 			forward_token=False,
 		),
 		Route(
