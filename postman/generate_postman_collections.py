@@ -347,6 +347,17 @@ _NMIS_LIST_TEST = (
 	"});"
 )
 
+
+def _nmis_list_save(id_var: str, name_var: str) -> str:
+	return (
+		f"{_NMIS_LIST_TEST}\n"
+		"if (b.data && b.data.length) {\n"
+		f'  pm.collectionVariables.set("{id_var}", String(b.data[0].id));\n'
+		f'  pm.collectionVariables.set("{name_var}", b.data[0].name);\n'
+		"}"
+	)
+
+
 _NMIS_PRICE_TEST = (
 	"const d = pm.response.json().data || {};\n"
 	'pm.test("has price fields", () => {\n'
@@ -380,10 +391,7 @@ NMIS = [
 				"/market-prices/commodities",
 				[200],
 				query={"page": "1", "limit": "100"},
-				tests=_NMIS_LIST_TEST + "\nif (b.data && b.data.length) {\n"
-				'  pm.collectionVariables.set("commodity_id", String(b.data[0].id));\n'
-				'  pm.collectionVariables.set("commodity_name", b.data[0].name);\n'
-				"}",
+				tests=_nmis_list_save("commodity_id", "commodity_name"),
 			),
 			request(
 				"Search commodities",
@@ -407,10 +415,7 @@ NMIS = [
 				"/market-prices/commodities",
 				[200],
 				query={"type": "livestock", "limit": "100"},
-				tests=_NMIS_LIST_TEST + "\nif (b.data && b.data.length) {\n"
-				'  pm.collectionVariables.set("livestock_id", String(b.data[0].id));\n'
-				'  pm.collectionVariables.set("livestock_name", b.data[0].name);\n'
-				"}",
+				tests=_nmis_list_save("livestock_id", "livestock_name"),
 			),
 			request(
 				"List markets",
@@ -418,10 +423,7 @@ NMIS = [
 				"/market-prices/markets",
 				[200],
 				query={"page": "1", "limit": "100"},
-				tests=_NMIS_LIST_TEST + "\nif (b.data && b.data.length) {\n"
-				'  pm.collectionVariables.set("marketplace_id", String(b.data[0].id));\n'
-				'  pm.collectionVariables.set("marketplace_name", b.data[0].name);\n'
-				"}",
+				tests=_nmis_list_save("marketplace_id", "marketplace_name"),
 			),
 			request(
 				"Search markets",
