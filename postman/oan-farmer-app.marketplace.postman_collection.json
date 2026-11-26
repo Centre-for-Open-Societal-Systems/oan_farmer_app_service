@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "OAN Farmer App - NMIS",
-    "description": "NMIS Public API routes of the farmer app gateway: /health, /market-prices.",
+    "name": "OAN Farmer App - Marketplace",
+    "description": "Marketplace (NMIS Public API) routes of the farmer app gateway: /health, /market-prices.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -35,14 +35,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/commodities",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/commodities",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "commodities"
               ],
@@ -102,14 +102,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/health",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/health",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "health"
               ],
               "query": []
@@ -183,14 +183,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/commodities",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/commodities",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "commodities"
               ],
@@ -265,14 +265,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/commodities",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/commodities",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "commodities"
               ],
@@ -347,14 +347,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/commodities",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/commodities",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "commodities"
               ],
@@ -433,14 +433,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/commodities",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/commodities",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "commodities"
               ],
@@ -519,14 +519,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/markets",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/markets",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "markets"
               ],
@@ -601,14 +601,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/markets",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/markets",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "markets"
               ],
@@ -683,14 +683,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/marketplaces",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/marketplaces",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "marketplaces"
               ],
@@ -768,14 +768,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -851,14 +851,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -934,14 +934,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1017,14 +1017,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1104,14 +1104,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices"
               ],
               "query": [
@@ -1190,14 +1190,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices"
               ],
               "query": [
@@ -1272,14 +1272,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1350,14 +1350,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1428,14 +1428,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1506,14 +1506,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1584,14 +1584,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1653,14 +1653,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices"
               ],
               "query": [
@@ -1734,14 +1734,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices"
               ],
               "query": [
@@ -1815,14 +1815,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1897,14 +1897,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/latest",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/latest",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "latest"
               ],
@@ -1979,14 +1979,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{api_prefix}}/nmis/{{nmis_version}}/market-prices/commodities",
+              "raw": "{{base_url}}{{api_prefix}}/marketplace/{{marketplace_version}}/market-prices/commodities",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "{{api_prefix}}",
-                "nmis",
-                "{{nmis_version}}",
+                "marketplace",
+                "{{marketplace_version}}",
                 "market-prices",
                 "commodities"
               ],
