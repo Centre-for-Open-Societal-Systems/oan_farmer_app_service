@@ -107,7 +107,7 @@ def declared_routes() -> list[dict]:
 	from oan_auth_service.api.router import declared_routes as declared
 
 	# Importing the endpoint modules is what declares the routes.
-	from oan_farmer_app_service.api.v1 import a2c, auth, consent, grievance  # noqa: F401
+	from oan_farmer_app_service.api.v1 import a2c, auth, consent, grievance, nmis  # noqa: F401
 
 	routes = []
 	for item in declared("oan_farmer_app_service"):

@@ -43,6 +43,8 @@ frappe:
             base_url: https://grievance-service.development.oanstaging.com
           consent:
             base_url: https://consent-manager.development.oanstaging.com
+          nmis:
+            base_url: https://api.nmis.click/api
 
   jobs:
     configure:
