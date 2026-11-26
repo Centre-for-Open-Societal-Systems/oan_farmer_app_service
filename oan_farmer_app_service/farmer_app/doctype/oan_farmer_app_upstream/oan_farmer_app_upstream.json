@@ -17,7 +17,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Backend",
-   "options": "grievance\na2c\nconsent",
+   "options": "grievance\na2c\nconsent\nnmis",
    "reqd": 1
   },
   {

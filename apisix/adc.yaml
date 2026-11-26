@@ -429,6 +429,12 @@ services:
     - /consent/:version/consents/:consent_id
     - /grievance/:version/grievances
     - /grievance/:version/grievances/:ticket/timeline
+    - /nmis/:version/health
+    - /nmis/:version/market-prices
+    - /nmis/:version/market-prices/commodities
+    - /nmis/:version/market-prices/latest
+    - /nmis/:version/market-prices/marketplaces
+    - /nmis/:version/market-prices/markets
     methods:
     - GET
     plugins:
@@ -568,6 +574,8 @@ services:
     - /grievance/*
     - /grievance/{version}
     - /grievance/{version}/*
+    - /nmis/{version}
+    - /nmis/{version}/*
     - /v1/admin
     - /v1/admin/*
     - /v1/auth
