@@ -86,9 +86,7 @@ def _target_path(template: str, args: dict) -> str:
 	return template.format(**values)
 
 
-def forward(
-	upstream_name: str, route: str, method: str, path: str, *, forward_token: bool = True
-) -> dict:
+def forward(upstream_name: str, route: str, method: str, path: str, *, forward_token: bool = True) -> dict:
 	"""Send the current request to `path` on the backend, and answer in the mobile envelope."""
 	# The auth middleware has already refused a request this route needs a token for.
 	token = bearer_token() if forward_token else None

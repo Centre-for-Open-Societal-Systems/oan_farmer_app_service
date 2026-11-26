@@ -380,8 +380,7 @@ NMIS = [
 				"/market-prices/commodities",
 				[200],
 				query={"page": "1", "limit": "100"},
-				tests=_NMIS_LIST_TEST
-				+ "\nif (b.data && b.data.length) {\n"
+				tests=_NMIS_LIST_TEST + "\nif (b.data && b.data.length) {\n"
 				'  pm.collectionVariables.set("commodity_id", String(b.data[0].id));\n'
 				'  pm.collectionVariables.set("commodity_name", b.data[0].name);\n'
 				"}",
@@ -408,8 +407,7 @@ NMIS = [
 				"/market-prices/commodities",
 				[200],
 				query={"type": "livestock", "limit": "100"},
-				tests=_NMIS_LIST_TEST
-				+ "\nif (b.data && b.data.length) {\n"
+				tests=_NMIS_LIST_TEST + "\nif (b.data && b.data.length) {\n"
 				'  pm.collectionVariables.set("livestock_id", String(b.data[0].id));\n'
 				'  pm.collectionVariables.set("livestock_name", b.data[0].name);\n'
 				"}",
@@ -420,8 +418,7 @@ NMIS = [
 				"/market-prices/markets",
 				[200],
 				query={"page": "1", "limit": "100"},
-				tests=_NMIS_LIST_TEST
-				+ "\nif (b.data && b.data.length) {\n"
+				tests=_NMIS_LIST_TEST + "\nif (b.data && b.data.length) {\n"
 				'  pm.collectionVariables.set("marketplace_id", String(b.data[0].id));\n'
 				'  pm.collectionVariables.set("marketplace_name", b.data[0].name);\n'
 				"}",
