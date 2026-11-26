@@ -959,6 +959,34 @@
     {
       "key": "first_application",
       "value": ""
+    },
+    {
+      "key": "commodity_id",
+      "value": ""
+    },
+    {
+      "key": "commodity_name",
+      "value": "Maize"
+    },
+    {
+      "key": "livestock_id",
+      "value": ""
+    },
+    {
+      "key": "livestock_name",
+      "value": ""
+    },
+    {
+      "key": "marketplace_id",
+      "value": ""
+    },
+    {
+      "key": "marketplace_name",
+      "value": "Addis Ababa"
+    },
+    {
+      "key": "price_date",
+      "value": "2026-08-07"
     }
   ]
 }

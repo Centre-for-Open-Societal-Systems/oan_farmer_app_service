@@ -28,7 +28,7 @@ from oan_farmer_app_service.farmer_app.doctype.oan_farmer_app_settings.oan_farme
 
 NAMESPACE = "/api"
 # The backends the gateway proxies. Each owns `/api/<name>/` and the app picks its version.
-SERVICES = ("a2c", "consent", "grievance")
+SERVICES = ("a2c", "consent", "grievance", "nmis")
 # The login helper shares oan_auth_service's own namespace.
 AUTH_NAMESPACE = "/api/v1"
 
@@ -93,7 +93,9 @@ def _upgrade_refusal() -> dict | None:
 	return error_response(_("Please update the app to continue."), "UPGRADE_REQUIRED")
 
 
-_MODULES = [f"oan_farmer_app_service.api.v1.{name}" for name in ("a2c", "auth", "consent", "grievance")]
+_MODULES = [
+	f"oan_farmer_app_service.api.v1.{name}" for name in ("a2c", "auth", "consent", "grievance", "nmis")
+]
 # One claim per prefix, not one for all of `/api/`, which other apps on the bench share.
 _register_routes = [
 	make_route_registrar(_MODULES, prefix)

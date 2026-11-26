@@ -37,6 +37,8 @@ class Route:
 	summary: str
 	# What the backend declares for this route. `"public"` takes no token; anything else needs a JWT.
 	auth: str | None = None
+	# Set False for public third-party upstreams so the farmer's JWT is never sent to them.
+	forward_token: bool = True
 
 
 def declare(upstream_name: str, routes: list[Route]) -> None:
@@ -61,6 +63,7 @@ def _declare_route(upstream_name: str, item: Route) -> None:
 			path,
 			frappe.request.method,
 			_target_path(item.target, kwargs),
+			forward_token=item.forward_token,
 		)
 
 	mobile_route(path, methods=item.methods, auth=item.auth, summary=item.summary)(handler)
@@ -83,10 +86,12 @@ def _target_path(template: str, args: dict) -> str:
 	return template.format(**values)
 
 
-def forward(upstream_name: str, route: str, method: str, path: str) -> dict:
+def forward(
+	upstream_name: str, route: str, method: str, path: str, *, forward_token: bool = True
+) -> dict:
 	"""Send the current request to `path` on the backend, and answer in the mobile envelope."""
 	# The auth middleware has already refused a request this route needs a token for.
-	token = bearer_token()
+	token = bearer_token() if forward_token else None
 	body = None
 	if method in _BODY_METHODS:
 		body = frappe.request.get_data()

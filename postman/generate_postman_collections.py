@@ -339,6 +339,262 @@ CONSENT = [
 	),
 ]
 
+# --------------------------------------------------------------------------------- NMIS
+NMIS = [
+	folder("00 Gate", [gate("/market-prices/commodities")]),
+	folder(
+		"01 Health",
+		[
+			request(
+				"Health check",
+				"GET",
+				"/health",
+				[200],
+				tests='pm.test("reports ok", () => pm.expect(pm.response.json().data.status).to.eql("ok"));',
+			),
+		],
+	),
+	folder(
+		"02 Discovery",
+		[
+			request(
+				"List commodities",
+				"GET",
+				"/market-prices/commodities",
+				[200],
+				query={"page": "1", "limit": "100"},
+				tests="const b = pm.response.json();\n"
+				'pm.test("has list and pagination", () => {\n'
+				'  pm.expect(b.data).to.be.an("array");\n'
+				'  pm.expect(b.pagination).to.have.property("hasNext");\n'
+				"});\n"
+				"if (b.data && b.data.length) {\n"
+				'  pm.collectionVariables.set("commodity_id", String(b.data[0].id));\n'
+				'  pm.collectionVariables.set("commodity_name", b.data[0].name);\n'
+				"}",
+			),
+			request(
+				"Search commodities",
+				"GET",
+				"/market-prices/commodities",
+				[200],
+				query={"search": "{{commodity_name}}", "limit": "20"},
+			),
+			request(
+				"List crops only",
+				"GET",
+				"/market-prices/commodities",
+				[200],
+				query={"type": "crop", "limit": "100"},
+			),
+			request(
+				"List livestock only",
+				"GET",
+				"/market-prices/commodities",
+				[200],
+				query={"type": "livestock", "limit": "100"},
+				tests="const b = pm.response.json();\n"
+				'pm.test("has list and pagination", () => {\n'
+				'  pm.expect(b.data).to.be.an("array");\n'
+				'  pm.expect(b.pagination).to.have.property("hasNext");\n'
+				"});\n"
+				"if (b.data && b.data.length) {\n"
+				'  pm.collectionVariables.set("livestock_id", String(b.data[0].id));\n'
+				'  pm.collectionVariables.set("livestock_name", b.data[0].name);\n'
+				"}",
+			),
+			request(
+				"List markets",
+				"GET",
+				"/market-prices/markets",
+				[200],
+				query={"page": "1", "limit": "100"},
+				tests="const b = pm.response.json();\n"
+				'pm.test("has list and pagination", () => {\n'
+				'  pm.expect(b.data).to.be.an("array");\n'
+				'  pm.expect(b.pagination).to.have.property("hasNext");\n'
+				"});\n"
+				"if (b.data && b.data.length) {\n"
+				'  pm.collectionVariables.set("marketplace_id", String(b.data[0].id));\n'
+				'  pm.collectionVariables.set("marketplace_name", b.data[0].name);\n'
+				"}",
+			),
+			request(
+				"Search markets",
+				"GET",
+				"/market-prices/markets",
+				[200],
+				query={"search": "addis", "limit": "20"},
+			),
+			request(
+				"List markets (alias /marketplaces)",
+				"GET",
+				"/market-prices/marketplaces",
+				[200],
+				query={"limit": "20"},
+			),
+		],
+	),
+	folder(
+		"03 Latest price",
+		[
+			request(
+				"Latest crop price (by ID)",
+				"GET",
+				"/market-prices/latest",
+				[200],
+				query={"commodity_id": "{{commodity_id}}", "marketplace_id": "{{marketplace_id}}"},
+				tests="const d = pm.response.json().data || {};\n"
+				'pm.test("has price fields", () => {\n'
+				'  pm.expect(d).to.have.property("available");\n'
+				'  pm.expect(d.currency).to.eql("ETB");\n'
+				'  pm.expect(d).to.have.property("prices");\n'
+				"});",
+			),
+			request(
+				"Latest livestock price (by ID)",
+				"GET",
+				"/market-prices/latest",
+				[200],
+				query={"commodity_id": "{{livestock_id}}", "marketplace_id": "{{marketplace_id}}"},
+				tests="const d = pm.response.json().data || {};\n"
+				'pm.test("has price fields", () => {\n'
+				'  pm.expect(d).to.have.property("available");\n'
+				'  pm.expect(d.currency).to.eql("ETB");\n'
+				'  pm.expect(d).to.have.property("prices");\n'
+				"});",
+			),
+			request(
+				"Latest by names",
+				"GET",
+				"/market-prices/latest",
+				[200],
+				query={"commodity": "{{commodity_name}}", "marketplace": "{{marketplace_name}}"},
+			),
+			request(
+				"Latest with type filter",
+				"GET",
+				"/market-prices/latest",
+				[200],
+				query={
+					"commodity": "{{commodity_name}}",
+					"marketplace": "{{marketplace_name}}",
+					"commodity_type": "crop",
+				},
+			),
+		],
+	),
+	folder(
+		"04 Historical price",
+		[
+			request(
+				"Price on a collection date",
+				"GET",
+				"/market-prices",
+				[200],
+				query={
+					"commodity_id": "{{commodity_id}}",
+					"marketplace_id": "{{marketplace_id}}",
+					"date": "{{price_date}}",
+				},
+				tests='pm.test("has available flag", () => pm.expect(pm.response.json().data).to.have.property("available"));',
+			),
+			request(
+				"Without date (same as latest)",
+				"GET",
+				"/market-prices",
+				[200],
+				query={"commodity_id": "{{commodity_id}}", "marketplace_id": "{{marketplace_id}}"},
+			),
+		],
+	),
+	folder(
+		"05 Error cases",
+		[
+			request(
+				"404 - unknown commodity",
+				"GET",
+				"/market-prices/latest",
+				[404],
+				query={"commodity": "zzz_not_a_commodity", "marketplace_id": "{{marketplace_id}}"},
+			),
+			request(
+				"404 - unknown marketplace",
+				"GET",
+				"/market-prices/latest",
+				[404],
+				query={"commodity_id": "{{commodity_id}}", "marketplace": "zzz_not_a_market"},
+			),
+			request(
+				"404 - commodity id that does not exist",
+				"GET",
+				"/market-prices/latest",
+				[404],
+				query={"commodity_id": "999999", "marketplace_id": "{{marketplace_id}}"},
+			),
+			request(
+				"400 - non-numeric id",
+				"GET",
+				"/market-prices/latest",
+				[400],
+				query={"commodity_id": "abc", "marketplace_id": "{{marketplace_id}}"},
+			),
+			request("400 - missing commodity and marketplace", "GET", "/market-prices/latest", [400]),
+			request(
+				"400 - bad date format",
+				"GET",
+				"/market-prices",
+				[400],
+				query={
+					"commodity_id": "{{commodity_id}}",
+					"marketplace_id": "{{marketplace_id}}",
+					"date": "07-08-2026",
+				},
+			),
+			request(
+				"400 - impossible calendar date",
+				"GET",
+				"/market-prices",
+				[400],
+				query={
+					"commodity_id": "{{commodity_id}}",
+					"marketplace_id": "{{marketplace_id}}",
+					"date": "2026-02-31",
+				},
+			),
+			request(
+				"400 - date on /latest",
+				"GET",
+				"/market-prices/latest",
+				[400],
+				query={
+					"commodity_id": "{{commodity_id}}",
+					"marketplace_id": "{{marketplace_id}}",
+					"date": "{{price_date}}",
+				},
+			),
+			request(
+				"400 - invalid commodity_type",
+				"GET",
+				"/market-prices/latest",
+				[400],
+				query={
+					"commodity_id": "{{commodity_id}}",
+					"marketplace_id": "{{marketplace_id}}",
+					"commodity_type": "fruit",
+				},
+			),
+			request(
+				"400 - limit too large",
+				"GET",
+				"/market-prices/commodities",
+				[400],
+				query={"limit": "501"},
+			),
+		],
+	),
+]
+
 COLLECTIONS = {
 	"OAN Farmer App - Grievance": (
 		"oan-farmer-app.grievance.postman_collection.json",
@@ -355,12 +611,18 @@ COLLECTIONS = {
 		CONSENT,
 		"Consent Manager routes of the farmer app gateway: /consents, /consent-receipts.",
 	),
+	"OAN Farmer App - NMIS": (
+		"oan-farmer-app.nmis.postman_collection.json",
+		NMIS,
+		"NMIS Public API routes of the farmer app gateway: /health, /market-prices.",
+	),
 }
 
 SERVICE = {
 	"OAN Farmer App - Grievance": "grievance",
 	"OAN Farmer App - A2C": "a2c",
 	"OAN Farmer App - Consent": "consent",
+	"OAN Farmer App - NMIS": "nmis",
 }
 
 
@@ -388,6 +650,7 @@ ENVIRONMENT = {
 		{"key": "grievance_version", "value": "v1", "enabled": True},
 		{"key": "a2c_version", "value": "v1", "enabled": True},
 		{"key": "consent_version", "value": "v1", "enabled": True},
+		{"key": "nmis_version", "value": "v1", "enabled": True},
 		{"key": "access_token", "value": "", "type": "secret", "enabled": True},
 		{"key": "app_version", "value": "1.0.0", "enabled": True},
 		{"key": "area", "value": "", "enabled": True},
@@ -404,7 +667,7 @@ def check_coverage():
 	"""Every route the app declares, except the login exchange, is in a collection."""
 	from oan_auth_service.api.router import declared_routes
 
-	from oan_farmer_app_service.api.v1 import a2c, auth, consent, grievance  # noqa: F401
+	from oan_farmer_app_service.api.v1 import a2c, auth, consent, grievance, nmis  # noqa: F401
 
 	def norm(p):
 		import re
@@ -445,6 +708,13 @@ def main():
 				{"key": "idem_key", "value": ""},
 				{"key": "first_ticket", "value": ""},
 				{"key": "first_application", "value": ""},
+				{"key": "commodity_id", "value": ""},
+				{"key": "commodity_name", "value": "Maize"},
+				{"key": "livestock_id", "value": ""},
+				{"key": "livestock_name", "value": ""},
+				{"key": "marketplace_id", "value": ""},
+				{"key": "marketplace_name", "value": "Addis Ababa"},
+				{"key": "price_date", "value": "2026-08-07"},
 			],
 		}
 		(OUT / filename).write_text(json.dumps(doc, indent=2) + "\n")
