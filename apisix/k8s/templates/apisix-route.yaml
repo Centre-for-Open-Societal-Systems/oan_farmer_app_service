@@ -771,12 +771,12 @@ spec:
       - /consent/:version/consents/:consent_id
       - /grievance/:version/grievances
       - /grievance/:version/grievances/:ticket/timeline
-      - /nmis/:version/health
-      - /nmis/:version/market-prices
-      - /nmis/:version/market-prices/commodities
-      - /nmis/:version/market-prices/latest
-      - /nmis/:version/market-prices/marketplaces
-      - /nmis/:version/market-prices/markets
+      - /marketplace/:version/health
+      - /marketplace/:version/market-prices
+      - /marketplace/:version/market-prices/commodities
+      - /marketplace/:version/market-prices/latest
+      - /marketplace/:version/market-prices/marketplaces
+      - /marketplace/:version/market-prices/markets
       methods:
       - GET
     plugins:
@@ -1062,8 +1062,8 @@ spec:
       - /grievance/*
       - /grievance/{version}
       - /grievance/{version}/*
-      - /nmis/{version}
-      - /nmis/{version}/*
+      - /marketplace/{version}
+      - /marketplace/{version}/*
       - /v1/admin
       - /v1/admin/*
       - /v1/auth
